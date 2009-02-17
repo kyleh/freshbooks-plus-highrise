@@ -1,0 +1,81 @@
+<?php
+Class Settings_model extends Model {
+
+    public $userid	= '';
+	public $fburl	= '';
+    public $fbtoken = '';
+	public $hrurl	= '';
+	public $hrtoken = '';
+
+
+    function __construct()
+    {
+        // Call the Model constructor
+        parent::Model();
+    }
+    
+	function got_settings()
+	{
+		$this->userid = $this->session->userdata('userid');
+		$this->db->where('userid', $this->userid);
+		$this->db->from('apisettings');
+		$query = $this->db->get();
+		return $query->num_rows(); 
+	}
+    
+	 	/**
+	 * Gets API settings.
+	 *
+	 * @return settings object row if records exit, False on no records
+	 **/
+	function get_settings()
+	{
+		$userid = $this->session->userdata('userid');
+		$this->db->where('userid', $userid);
+		$this->db->from('apisettings');
+		$query = $this->db->get();
+		if ($query->num_rows > 0) {
+			return $query->row();
+		}else{
+			return FALSE;
+		}
+	}
+
+	// function get_settings()
+	//     {
+	// 	$this->userid = $this->session->userdata('userid');
+	// 	$this->db->where('userid', $this->userid);
+	// 	$this->db->from('apisettings');
+	// 	$query = $this->db->get();
+	// 	if ($query->num_rows > 0) {
+	// 		return $query->result();
+	// 	}else{
+	// 		return FALSE;
+	// 	}
+	// 	
+	// }
+
+	function insert_settings()
+	{
+		$this->userid  		= $this->session->userdata('userid');
+		$this->fburl 		= $this->input->post('fburl');
+	    $this->fbtoken    	= $this->input->post('fbtoken');
+		$this->hrurl	    = $this->input->post('hrurl');
+		$this->hrtoken    	= $this->input->post('hrtoken');
+	    
+		$this->db->insert('apisettings', $this);
+	}
+	
+	function update_settings()
+	{
+		$this->userid  		= $this->session->userdata('userid');
+		$this->fburl 		= $this->input->post('fburl');
+	  $this->fbtoken    	= $this->input->post('fbtoken');
+		$this->hrurl	    = $this->input->post('hrurl');
+		$this->hrtoken    	= $this->input->post('hrtoken');
+		
+		$this->db->where('userid',$this->userid);
+		$this->db->update('apisettings',$this);
+	}	
+
+}
