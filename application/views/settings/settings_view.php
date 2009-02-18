@@ -14,11 +14,15 @@
 	<p>Click <strong>My Info</strong> then <strong>Reveal authentication token</strong> and copy and paste the token into the input field below. <strong>Your Highrise URL</strong> is simple, just get the URL that you log into and paste it here. For example, http://yourname.highrisehq.com. </p>
 	
 	<img src="<?php echo(base_url()); ?>public/stylesheets/images/settings.jpg" alt="FreshBooks screenshot of API settings page." style="float:right; border: 3px solid rgb(201, 201, 201); margin-left: 10px; margin-top: 10px;" />
-
+	<?php if ($error_data): ?>
+		<?php foreach ($error_data as $error): ?>
+			<p class="error"><?php echo $error; ?></p>
+		<?php endforeach ?>
+	<?php endif ?>
 	<?php echo form_open('settings')."\n"; ?>
 	<div id="apiform">
 		<div class="api-input">
-          <label>Freshbooks URL</label>
+          <label>Freshbooks API URL</label>
 			<input class="input" type="text" name="fburl" value="<?php echo $fburl ? $fburl : $this->validation->fburl; ?>" size="50" />
         </div>
 		<div class="api-input">

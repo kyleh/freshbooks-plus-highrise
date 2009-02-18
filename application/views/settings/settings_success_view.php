@@ -7,7 +7,7 @@
 <div id="content">
 	<div id="message">
 		<h2>Your Settings Were Saved Successfully.</h2>
-		<p><?php echo anchor('synctest/index', 'Proceed to Sync Contacts Page'); ?></p>
+		<p><?php echo anchor('sync/index', 'Proceed to Sync Contacts Page', array('class' => 'submit')); ?></p>
 	</div><!-- end div message -->
 
 </div><!-- end div content -->

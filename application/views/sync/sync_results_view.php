@@ -7,7 +7,9 @@
 <div id="content">
 
 	<h3>Client Sync Results:</h3>
-	<?php if ($result): ?>
+	<?php if ($error): ?>
+		<p class='error'><?php echo $error; ?></p>
+	<?php elseif ($result): ?>
 		<?php
 		$num = 0;
 		$count = count($result);

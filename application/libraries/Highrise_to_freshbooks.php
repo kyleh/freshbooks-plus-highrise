@@ -82,9 +82,12 @@ class Highrise_to_freshbooks{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $this->fb_url);
 		curl_setopt($ch, CURLOPT_USERPWD, $this->fb_token);
+		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
+		curl_setopt($ch,CURLOPT_USERAGENT,'FreshBooks + Highrise sync application');
+		
 		$result = curl_exec($ch);
 		curl_close ($ch);
 		
@@ -104,6 +107,12 @@ class Highrise_to_freshbooks{
 				return $fbxml;
 			}
 		}
+	}
+	
+	public function validate_highrise_settings()
+	{
+		$url = $this->hr_url.'/groups.xml';
+		return $this->highrise_api_request($url);
 	}
 	
 	public function get_highrise_tags()
@@ -126,6 +135,19 @@ class Highrise_to_freshbooks{
 	{
 		$url = $this->hr_url."/companies/".$companyid.".xml";
 		return $this->highrise_api_request($url);
+	}
+	
+	public function validate_freshbooks_settings()
+	{
+		$xml =<<<EOL
+		<?xml version="1.0" encoding="utf-8"?>
+		<request method="client.list">
+		  <page>1</page>
+		  <per_page>1</per_page>
+		</request>
+EOL;
+		
+		return $this->freshbooks_api_request($xml);
 	}
 	
 	public function get_freshbooks_clients($page=1)

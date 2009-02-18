@@ -58,12 +58,37 @@ Class Sync extends Controller
 							);
 		}
 	}
+
+	function _validate_api_settings()
+	{
+		$fb_settings_status = $this->highrise_to_freshbooks->validate_freshbooks_settings();
+		$hr_settings_status = $this->highrise_to_freshbooks->validate_highrise_settings();
+		$error_data = array();
+		
+		if (is_string($fb_settings_status))
+		{
+			$error_data[] = $fb_settings_status;
+		}
+		if (is_string($hr_settings_status))
+		{
+			$error_data[] = $hr_settings_status;
+		}
+		if ($error_data) 
+		{
+			$this->load->library('session');
+			$this->session->set_flashdata('error', $error_data);
+			redirect('settings/index/invalid');
+		}
+		
+		return;
+	}
 	
 	function index()
 	{
 		if ($this->_check_login())
 		{
-			$data['navigation'] = TRUE;	
+			$data['navigation'] = TRUE;
+			$validate_api_settings = $this->_validate_api_settings();
 		}
 		
 		$data['title']   = 'Highrise to Freshbooks Sync Tool :: Sync Contacts';

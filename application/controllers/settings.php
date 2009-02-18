@@ -31,7 +31,55 @@ Class Settings extends Controller
 		}
 	}
 	
-	function index()
+	/**
+	 * Gets API settings from database.
+	 *
+	 * @return array Array of API settings on success, redirect to settings page on fail
+	 **/
+	function _get_settings()
+	{
+		$this->load->model('Settings_model','settings');
+		$settings = $this->settings->get_settings();
+		if ( ! $settings)
+		{
+			redirect('settings/index');
+		}
+		else
+		{
+			return array(
+							'fburl' => $settings->fburl,
+							'fbtoken' => $settings->fbtoken,
+							'hrurl' => $settings->hrurl,
+							'hrtoken' => $settings->hrtoken,
+							);
+		}
+	}
+	
+	function _validate_api_settings()
+	{
+		$fb_settings_status = $this->highrise_to_freshbooks->validate_freshbooks_settings();
+		$hr_settings_status = $this->highrise_to_freshbooks->validate_highrise_settings();
+		$error_data = array();
+		
+		if (is_string($fb_settings_status))
+		{
+			$error_data[] = $fb_settings_status;
+		}
+		if (is_string($hr_settings_status))
+		{
+			$error_data[] = $hr_settings_status;
+		}
+		if ($error_data) 
+		{
+			$this->load->library('session');
+			$this->session->set_flashdata('error', $error_data);
+			redirect('settings/index/invalid');
+		}
+		
+		return;
+	}
+	
+	function index($settings_status='ok')
 	{
 		if ($this->_check_login())
 		{
@@ -44,6 +92,12 @@ Class Settings extends Controller
 		$data['fbtoken'] = '';
 		$data['hrurl']   = '';
 		$data['hrtoken'] = '';
+		$data['error_data'] = '';
+		
+		if ($settings_status == 'invalid') {
+			$data['error_data'] = $this->session->flashdata('error');;
+		}
+		
 		
 		$this->load->library('validation');
 		$this->validation->set_error_delimiters('<div class="error">', '</div>');
@@ -82,6 +136,12 @@ Class Settings extends Controller
 			}else{
 				$this->settings->insert_settings();
 			}
+			
+			//validate settings
+			$params = $this->_get_settings();
+			$this->load->library('Highrise_to_freshbooks', $params);
+			$check_fb_settings = $this->_validate_api_settings();
+			
 			$this->load->view('settings/settings_success_view', $data);
 		}
 	}
