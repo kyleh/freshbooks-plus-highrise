@@ -12,9 +12,9 @@ Class User extends Controller {
 		//load page specific variables
 		$loggedin = $this->session->userdata('loggedin');
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
-		$data['heading'] = 'FBsync Login';
+		$data['heading'] = 'FreshBooks + Highrise Login';
 		$data['error'] = FALSE;
-		$data['navigation'] = False;
+		$data['navigation'] = FALSE;
 		//check to see if user is logged in
 		if (!$loggedin) {
 		$this->load->view('user/login_view',$data);
@@ -85,7 +85,7 @@ Class User extends Controller {
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
 		$data['heading'] = 'FBsync Login';
 		$data['error'] = FALSE;
-		$data['navigation'] = False;
+		$data['navigation'] = FALSE;
 		
 		$this->load->model('User_model', 'user');
 		$user = $this->user->getuser($this->input->post('email'));
