@@ -112,7 +112,7 @@ Class User extends Controller {
 			//return with error message
 			$data['error'] = "Your Email Address Was Not Found";
 		}
-		$this->load->view('login_view',$data);
+		$this->load->view('user/login_view',$data);
 
 	}
 	
