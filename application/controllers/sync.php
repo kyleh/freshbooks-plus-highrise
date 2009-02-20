@@ -9,7 +9,7 @@ Class Sync extends Controller
 		$params = $this->_get_settings();
 		$this->load->library('Highrise_to_freshbooks', $params);
 		//Debug View True=on False=off
-		$this->output->enable_profiler(TRUE);
+		$this->output->enable_profiler(FALSE);
 	}
 	
 	/**
@@ -83,6 +83,15 @@ Class Sync extends Controller
 		return;
 	}
 	
+	/**
+	 * Sorts multidimentional of results by status
+	 *
+	 **/
+	function _results_sort($x, $y)
+	{
+		return strcasecmp($x['Status'], $y['Status']);
+	}
+	
 	function index()
 	{
 		if ($this->_check_login())
@@ -116,8 +125,9 @@ Class Sync extends Controller
 		$fb_emails = array();
 		
 		$settings = $this->_get_settings();
-		//TODO: preg replace with proper link
-		$data['fb_url'] = $settings['fburl'];
+		//set url to freshbooks account
+		$url_segments = parse_url($settings['fburl']);
+		$data['fb_url'] = $url_segments['scheme'].'://'.$url_segments['host'].'/menu.php';
 		
 		//get highrise clients
 		$tag_id = $_POST['tagfilter'];
@@ -173,12 +183,10 @@ Class Sync extends Controller
 				return;
 			}
 		}
-		
+		usort($sync_results, array("Sync", '_results_sort'));
 		$data['result'] = $sync_results;
 		$this->load->view('sync/sync_results_view', $data);
 		
 	}
-
-
 
 }

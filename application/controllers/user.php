@@ -3,8 +3,8 @@ Class User extends Controller {
 	
 	function __construct()
     {
-        parent::Controller();
-		$this->load->helper(array('form', 'url', 'html'));		
+	    parent::Controller();
+			$this->load->helper(array('form', 'url', 'html'));		
     }
 	
 	function index()

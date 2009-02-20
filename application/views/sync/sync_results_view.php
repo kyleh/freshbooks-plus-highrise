@@ -42,11 +42,10 @@
 		</table>
 		
 	<?php else: ?>	
-		<p>Selected Highrise clients are already in sync with Freshbooks."
+		<p>Selected Highrise clients are already in sync with Freshbooks.</p>
 	<?php endif ?>
 	
-	<div style="margin-top:30px;"><a href="<?php echo $fb_url; ?>" class="submit">Go to FreshBooks</a></div>
-	
+	<div style="margin-top:30px;"><a href="<?php echo $fb_url; ?>" class="submit" target="_blank">Go to FreshBooks</a></div>
 </div><!-- end div content -->
 <!-- load the footer -->
 <?php echo $this->load->view('common/footer'); ?>

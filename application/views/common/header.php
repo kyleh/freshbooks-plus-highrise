@@ -6,7 +6,11 @@
 <link rel="stylesheet" type="text/css" href="<?php echo(base_url()); ?>public/stylesheets/default.css" media="screen" />
 <script src="<?php echo(base_url()); ?>public/js/jquery.js" type="text/javascript"></script>
 <script src="<?php echo(base_url()); ?>public/js/formhelper.js" type="text/javascript"></script>
-
+<script language=”JavaScript” type=”text/javascript”>
+function dis(a){
+a.disabled = “disabled”;
+}
+</script>
 <!--[if lt IE 7.]>
 <script src="<?php echo(base_url()); ?>public/js/pngfix.js" type="text/javascript"></script>
 <![endif]-->
