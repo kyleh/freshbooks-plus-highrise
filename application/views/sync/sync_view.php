@@ -25,7 +25,7 @@
 			  </li>
 			<?php endforeach; ?>
 			</ul>
-			<input class="submit" type=submit onclick="dis(this);" value="Sync to Freshbooks">
+			<input class="submit" type=submit onclick="this.disabled=true;" value="Sync to Freshbooks">
 		</div><!-- end div tagform -->
 	</form>
 	
