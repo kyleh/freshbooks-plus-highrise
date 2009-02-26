@@ -629,7 +629,7 @@ body.integrator .banner_title {
 /* ===========================================
 	Tags Form
 ============================================== */
-#tagform {
+/*#tagform {
 	float: left;
 	width: 390px;
 	position: relative;
@@ -637,6 +637,12 @@ body.integrator .banner_title {
 	line-height: 1.5em;
 
 }
+*/
+#tagform {
+	margin-right: 5em;
+	width: auto;
+}
+
 #tagform input.submit {
 	margin: 30px 0;
 }

@@ -10,28 +10,28 @@
 <div id="content">
 		
 	<?php if (is_object($hr_tags)): ?>
-	<?php echo form_open('sync/sync_contacts')."\n"; ?>
+	<?php echo form_open('sync/sync_contacts', array('onSubmit' => "return submitonce(this)"))."\n"; ?>
 		<div id="tagform">
-			<h2>Select a Highrise Tag as a Filter (Optional)</h2>
+			<h2>Choose Highrise contacts to import</h2>
 			<ul class="tags">
 	          <li>
 				<input type="radio" name="tagfilter" value="nofilter" checked="checked" >
-				<label>Don't Use A Tag Filter</label>
+				<label>Import everybody!</label>
 			  </li>
 			<?php foreach($hr_tags as $tag): ?>
 			  <li>
 				<input type="radio" name="tagfilter" value="<?php echo $tag->id; ?>">
-				<label><?php echo $tag->name; ?></label>
+				<label>Only contacts tagged <strong><?php echo $tag->name; ?></strong></label>
 			  </li>
 			<?php endforeach; ?>
 			</ul>
-			<input class="submit" type=submit onclick="this.disabled=true;" value="Sync to Freshbooks">
+			<input class="submit" type=submit onclick="" id="submit" value="Sync to Freshbooks">
 		</div><!-- end div tagform -->
 	</form>
 	
 	<div id="sync-right">
-	  <h2>Tag Contacts Before Using This Application</h2>
-	  <p>If you plan on using a tag filter, please login to your Highrise account and tag your contacts appropriately. If you decide not to use a tag filter, then all Highrise contacts will be added during the synchronization process.</p>
+	  	<h2>Tag contacts before using this application</h2>
+			  <p>If you plan on using tags, please log into your Highrise account and tag your contacts appropriately. If you decide not to use tags, then all Highrise contacts will be added during the synchronization process.</p>
 	</div>
 	
 	<?php else: ?>

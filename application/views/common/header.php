@@ -6,7 +6,18 @@
 <link rel="stylesheet" type="text/css" href="<?php echo(base_url()); ?>public/stylesheets/default.css" media="screen" />
 <script src="<?php echo(base_url()); ?>public/js/jquery.js" type="text/javascript"></script>
 <script src="<?php echo(base_url()); ?>public/js/formhelper.js" type="text/javascript"></script>
+<script>
 
+function submitonce(theform) {
+	if( document.getElementById ) {
+		input = document.getElementById('submit');
+		p = document.createElement( 'p' );
+		p.innerHTML = 'Synchronizing...';
+		input.parentNode.replaceChild( p, input );
+		return true;
+	}
+}
+</script>
 <!--[if lt IE 7.]>
 <script src="<?php echo(base_url()); ?>public/js/pngfix.js" type="text/javascript"></script>
 <![endif]-->

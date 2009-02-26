@@ -5,8 +5,6 @@
   </div>
 </div>
 <div id="content">
-<p>To use this application you need to configure your FreshBooks settings and Highrise settings. You can get these settings from inside your FreshBooks & Highrise accounts. Please follow the directions below if you aren't exactly sure on how to activate the FreshBooks API or get your Highrise token.</p>
-	
 	<h3>Log into your FreshBooks Account</h3> 
 	<p>Click <strong>Settings</strong> then <strong>Enable FreshBooks API</strong>. Once you've enabled the API, you will see <strong>Your API URL</strong> & <strong>Your Authentication Token</strong> in the middle of that page. You'll need to enter those here to continue. </p>
 
