@@ -37,26 +37,18 @@ Class User extends Controller {
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
 		$data['heading'] = 'Sign Up For A New Account';
 		$data['error'] = '';
-		$data['navigation'] = False;
-		//form validation		
-		$this->load->library('validation');
-		$this->validation->set_error_delimiters('<div class="error">', '</div>');
+		$data['navigation'] = FALSE;
+		
+		//load form validation helper
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('<p class="error">', '</p>');
+		
+		$this->form_validation->set_rules('name', 'Full Name', 'required');
+		$this->form_validation->set_rules('email', 'Email Address', 'required|valid_email|callback_email_check');
+		$this->form_validation->set_rules('password', 'Password', 'required|matches[passconf]');
+		$this->form_validation->set_rules('passconf', 'Password Conformation', 'required');
 
-		$rules['name']		= "required";
-		$rules['email']		= "required|valid_email|callback_email_check";
-		$rules['password']	= "required|matches[passconf]";
-		$rules['passconf']	= "required";
-
-		$this->validation->set_rules($rules);
-
-		$fields['name']		= 'Full Name';
-		$fields['password']	= 'Password';
-		$fields['passconf']	= 'Password Confirmation';
-		$fields['email']	= 'Email Address';
-
-		$this->validation->set_fields($fields);
-
-		if ($this->validation->run() == FALSE){
+		if ($this->form_validation->run() == FALSE){
 			$this->load->view('user/register_view', $data);
 		}else{
 			$this->load->model('User_model', 'user');
@@ -70,6 +62,7 @@ Class User extends Controller {
 		}
 	}
 
+	//email callbback form validation function
 	function email_check($str)
 	{
 		$this->load->model('User_model', 'email');

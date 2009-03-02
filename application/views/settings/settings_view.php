@@ -17,23 +17,26 @@
 			<p class="error"><?php echo $error; ?></p>
 		<?php endforeach ?>
 	<?php endif ?>
+	
+	<?php echo validation_errors(); ?>
+	
 	<?php echo form_open('settings')."\n"; ?>
 	<div id="apiform">
 		<div class="api-input">
           <label>Freshbooks API URL</label>
-			<input class="input" type="text" name="fburl" value="<?php echo $fburl ? $fburl : $this->validation->fburl; ?>" size="50" />
+			<input class="input" type="text" name="fburl" value="<?php echo $fburl ? $fburl : set_value('fburl'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Freshbooks Token</label>
-			<input class="input" type="text" name="fbtoken" value="<?php echo $fbtoken ? $fbtoken : $this->validation->fbtoken; ?>" size="50" />
+			<input class="input" type="text" name="fbtoken" value="<?php echo $fbtoken ? $fbtoken : set_value('fbtoken'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Highrise URL</label>
-			<input class="input" type="text" name="hrurl" value="<?php echo $hrurl ? $hrurl : $this->validation->hrurl; ?>" size="50" />
+			<input class="input" type="text" name="hrurl" value="<?php echo $hrurl ? $hrurl : set_value('hrurl'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Highrise Token</label>
-			<input class="input" type="text" name="hrtoken" value="<?php echo $hrtoken ? $hrtoken : $this->validation->hrtoken; ?>" size="50" />
+			<input class="input" type="text" name="hrtoken" value="<?php echo $hrtoken ? $hrtoken : set_value('hrtoken'); ?>" size="50" />
         </div>
 		<input class="submit" type="submit" name="submit" value="<?php echo $submitname ?>" />
 	</div>

@@ -97,11 +97,7 @@ Class Settings extends Controller
 		if ($settings_status == 'invalid') {
 			$data['error_data'] = $this->session->flashdata('error');;
 		}
-		
-		
-		$this->load->library('validation');
-		$this->validation->set_error_delimiters('<div class="error">', '</div>');
-		
+
 		//check for settings
 		$this->load->model('Settings_model', 'settings');
 		$current_settings = $this->settings->get_settings();
@@ -114,20 +110,16 @@ Class Settings extends Controller
 			$data['hrtoken'] = $current_settings->hrtoken;
 		}
 		
+		//load form validation helper
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('<p class="error">', '</p>');
 		//validation rules
-		$rules['fburl']		= "required";
-		$rules['fbtoken']	= "required";
-		$rules['hrurl']		= "required";
-		$rules['hrtoken']	= "required";
-		$this->validation->set_rules($rules);
-		//set form fields
-		$fields['fburl']	= 'Freshbooks URL';
-		$fields['fbtoken']	= 'Freshbooks Token';
-		$fields['hrurl']	= 'Highrise URL';
-		$fields['hrtoken']	= 'Highrise Token';
-		$this->validation->set_fields($fields);
+		$this->form_validation->set_rules('fburl', 'FreshBooks API URL', 'required');
+		$this->form_validation->set_rules('fbtoken', 'FreshBooks API Token', 'required');
+		$this->form_validation->set_rules('hrurl', 'Highrise URL', 'required');
+		$this->form_validation->set_rules('hrtoken', 'Highrise API Token', 'required');
 
-		if ($this->validation->run() == FALSE){
+		if ($this->form_validation->run() == FALSE){
 			$this->load->view('settings/settings_view', $data);
 		}else{
 			$this->load->model('Settings_model', 'settings');
