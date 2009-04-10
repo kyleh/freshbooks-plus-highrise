@@ -119,19 +119,19 @@ Class Sync extends Controller
 		$data['title']   = 'Highrise to Freshbooks Sync Tool :: Sync Contacts Results';
 		$data['heading'] = 'Sync HighRise Contacts Results';
 		$data['result'] = '';
-		//$data['name'] = $this->session->userdata('name');
 		$data['error'] = '';
 		$data['clients'] = '';
 		$fb_emails = array();
 		
 		$settings = $this->_get_settings();
-		//set url to freshbooks account
+		//set url to freshbooks account for link on results page
 		$url_segments = parse_url($settings['fburl']);
 		$data['fb_url'] = $url_segments['scheme'].'://'.$url_segments['host'].'/menu.php';
 		
 		//get highrise clients
 		$tag_id = $_POST['tagfilter'];
 		$hr_clients = $this->highrise_to_freshbooks->get_highrise_clients($tag_id);
+		
 		//exit on api error
 		if (preg_match("/Error/", $hr_clients)) {
 			$data['error'] = $hr_clients;
@@ -143,6 +143,7 @@ Class Sync extends Controller
 		//to highrise client email addresses
 		//process first FB page
 		$fb_clients = $this->highrise_to_freshbooks->get_freshbooks_clients();
+		
 		//exit on api error
 		if (preg_match("/Error/", $fb_clients)) {
 			$data['error'] = $fb_clients;
@@ -153,9 +154,11 @@ Class Sync extends Controller
 		foreach ($fb_clients->clients->client as $client) {
 			$fb_emails[] = (string)$client->email;
 		}
+		
 		//set pages var based on actual pages returned by FB
 		$fb_pages = (integer)$fb_clients->clients->attributes()->pages;
 		//process additional FB pages if they exist
+
 		while ($fb_pages > 1) {
 			$fb_clients = $this->highrise_to_freshbooks->get_freshbooks_clients($fb_pages);
 			//exit on api error
@@ -170,10 +173,6 @@ Class Sync extends Controller
 			}
 			$fb_pages--;
 		}//end while
-		
-		//$data['fb_emails'] = $fb_emails;
-		//$data['hr_clients'] = $hr_clients;
-		//$this->load->view('sync/sync_results_view', $data);
 		
 		$sync_results = $this->highrise_to_freshbooks->sync_clients($hr_clients, $fb_emails);
 		if (is_string($sync_results)) {

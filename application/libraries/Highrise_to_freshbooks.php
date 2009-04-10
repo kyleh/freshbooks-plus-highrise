@@ -65,8 +65,10 @@ class Highrise_to_freshbooks{
 			return 'Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.';
 		}elseif(preg_match("/denied/", $result)){
 			return "Error: <strong>".$result."</strong> Please check your Highrise API Token setting and try again.";
-		}else{
+		}elseif(preg_match("/<?xml/", $result)){
 			return simplexml_load_string($result);
+		}else{
+			return $result;
 		}
 		
 	}
@@ -182,12 +184,16 @@ EOL;
  				$name = $fname.' '.$lname;
 
  				// get Highrise company data
- 				$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
- 				if (preg_match("/Error/", $hr_company)) {
- 					return $hr_company;
- 				}
+				if ($hr_client->{'company-id'} != '') {
+					$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
+	 				if (preg_match("/Error/", $hr_company)) {
+	 					return $hr_company;
+	 				}
+				}else{
+					$hr_company = '';
+				}
 
- 				if(!$hr_company->name == ''){
+ 				if(is_object($hr_company) && $hr_company != ''){
  					$company = (string)$hr_company->name;
  				}else{
  					$company = 'Not Available';
@@ -215,30 +221,36 @@ EOL;
  			//else compare next client
  			if($possible_client == 'new'){
  				//set client name
- 				if (!$hr_client->{'first-name'} == '') {
+ 				if ($hr_client->{'first-name'} != '') {
  					$fname = (string)$hr_client->{'first-name'};
  				}else{
  					$fname = 'Not Available';
  				}
-
- 				if (!$hr_client->{'last-name'} == '') {
+				$fname = htmlspecialchars($fname);
+				
+ 				if ($hr_client->{'last-name'} != '') {
  					$lname = (string)$hr_client->{'last-name'};
  				}else{
  					$lname = 'Not Available';
  				}
-
+				$lname = htmlspecialchars($lname);
+				
  				// get Highrise company data
- 				$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
- 				if (preg_match("/Error/", $hr_company)) {
- 					return $hr_company;
- 				}
+				if ($hr_client->{'company-id'} != '') {
+					$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
+	 				if (preg_match("/Error/", $hr_company)) {
+	 					return $hr_company;
+	 				}
+				}else{
+					$hr_company = '';
+				}
 
- 				if(!$hr_company->name == ''){
+ 				if($hr_company != '' && is_object($hr_company)){
  					$company = (string)$hr_company->name;
  				}else{
  					$company = 'Not Available';
  				}
-
+				$company = htmlspecialchars($company);
  				$email = (string)$hr_email;
  				//set all existing phone numbers
  				//initialize #'s to blank
@@ -264,13 +276,17 @@ EOL;
  				}
  				//set address information
  				$street = (string)$hr_client->{'contact-data'}->{'addresses'}->address->street;
+				$street = strip_tags($street);
+				$street = trim($street);
+				$street = htmlspecialchars($street);
  				$city = (string)$hr_client->{'contact-data'}->{'addresses'}->address->city;
+				$city = htmlspecialchars($city);
  				//state abbreviation to full spelling conversion for FB compatability
  				$state_raw = (string)$hr_client->{'contact-data'}->{'addresses'}->address->state;
  					$state_raw = trim($state_raw);
  					$state_length = strlen($state_raw);
  					$state_abr = strtoupper($state_raw); 
- 					if ($state_length  == 2 & array_key_exists($state_abr, $states)) {
+ 					if ($state_length  == 2 && array_key_exists($state_abr, $states)) {
  							$state = $states[$state_abr];
  					}else{
  						$state = $state_raw;
@@ -313,23 +329,19 @@ EOL;
  			</request>
 EOL;
 
- 				//send new client xml to freshbooks
+				//send new client xml to freshbooks
  				$result = $this->freshbooks_api_request($xml);
  				if (preg_match("/Error/", $result)) {
  					return $result;
  				}
-
+ 				
  				if($result->client_id){
  					$name = $fname.' '.$lname;
- 				 	//$client = array('Result Number' => $result_num,'Status' => 'Success', 'Company' => $company, 'Name' => $name);
  					$result_set[] = array('Status' => 'Success', 'Company' => $company, 'Name' => $name, 'Message' => 'Client Synced Successfully');
- 					//unset($client);
  				} elseif ($result->error){
  					$name = $fname.' '.$lname;
  				 	$message = (string)$result->error;
- 				 	//$client = array('Status' => $status,'Company' => $company, 'Name' => $name);
  					$result_set[] = array('Status' => 'Fail', 'Company' => $company, 'Name' => $name, 'Message' => $message);
- 					//unset($client);
  				}
  			}	
  		}//endforeach
