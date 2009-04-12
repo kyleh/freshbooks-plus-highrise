@@ -11,7 +11,7 @@
 |	http://example.com/
 |
 */
-$config['base_url']	= "http://localhost/freshbooks_dev/freshbooks-plus-highrise/";
+$config['base_url']	= "http://127.0.0.1/freshbooks_dev/freshbooks-plus-highrise/";
 
 /*
 |--------------------------------------------------------------------------

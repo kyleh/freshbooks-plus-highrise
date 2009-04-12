@@ -40,8 +40,8 @@
 | NO TRAILING SLASH!
 |
 */
-	$application_folder = "application";
-
+	//$application_folder = "/Users/kyleh/Documents/webdev/freshbooks_dev/freshbooks-plus-highrise/application";
+	$application_folder = 'application';
 /*
 |===============================================================
 | END OF USER CONFIGURABLE SETTINGS
