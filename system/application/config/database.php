@@ -40,7 +40,7 @@ $active_record = TRUE;
 $db['default']['hostname'] = "localhost";
 $db['default']['username'] = "kyleh";
 $db['default']['password'] = "";
-$db['default']['database'] = "freshbooks_highrise";
+$db['default']['database'] = "fb_highrise";
 $db['default']['dbdriver'] = "mysql";
 $db['default']['dbprefix'] = "";
 $db['default']['pconnect'] = TRUE;
@@ -49,6 +49,21 @@ $db['default']['cache_on'] = FALSE;
 $db['default']['cachedir'] = "";
 $db['default']['char_set'] = "utf8";
 $db['default']['dbcollat'] = "utf8_general_ci";
+
+
+$db['oauth']['hostname'] = "localhost";
+$db['oauth']['username'] = "kyleh";
+$db['oauth']['password'] = "";
+$db['oauth']['database'] = "fb_highrise_oauth";
+$db['oauth']['dbdriver'] = "mysql";
+$db['oauth']['dbprefix'] = "";
+$db['oauth']['pconnect'] = TRUE;
+$db['oauth']['db_debug'] = TRUE;
+$db['oauth']['cache_on'] = FALSE;
+$db['oauth']['cachedir'] = "";
+$db['oauth']['char_set'] = "utf8";
+$db['oauth']['dbcollat'] = "utf8_general_ci";
+
 
 
 /* End of file database.php */
