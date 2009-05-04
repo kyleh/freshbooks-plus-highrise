@@ -1,3 +1,9 @@
+<!-- 
+Login View Template
+Login View Page
+Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+Ver. 1.0 5/3/2009
+-->
 <?php echo $this->load->view('common/header'); ?>
 <div id="banner_wrap">
   <div id="banner">
@@ -14,7 +20,7 @@
 		</div>
 		<h1><?php echo $heading ?></h1>
 		<?php
-		 if($error){
+		 if(isset($error)){
 			echo "<div class=\"error\">".$error."</div>";
 			}; 
 		?>

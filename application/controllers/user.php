@@ -1,6 +1,33 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
-
-//User Controller
+/**
+*User Controller
+*Controller to login verifications and registration
+*Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+*Ver. 1.0 5/3/2009
+*
+*Copyright (c) 2009, Kyle Hendricks - Mend Technologies
+*All rights reserved.
+*Redistribution and use in source and binary forms, with or without
+*modification, are permitted provided that the following conditions are met:
+** Redistributions of source code must retain the above copyright notice,
+*this list of conditions and the following disclaimer.
+** Redistributions in binary form must reproduce the above copyright
+*notice, this list of conditions and the following disclaimer in the
+*documentation and/or other materials provided with the distribution.
+** Neither the name of the <ORGANIZATION> nor the names of its
+*contributors may be used to endorse or promote products derived from this
+*software without specific prior written permission.
+*THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+*ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+*WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+*DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+*ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+*(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+*LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+*ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+*(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+*SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
 
 Class User extends Controller {
 	
@@ -16,7 +43,6 @@ Class User extends Controller {
 		$loggedin = $this->session->userdata('loggedin');
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
 		$data['heading'] = 'FreshBooks + Highrise Login';
-		$data['error'] = FALSE;
 		$data['navigation'] = FALSE;
 		//check to see if user is logged in
 		if (!$loggedin) {
@@ -26,6 +52,7 @@ Class User extends Controller {
 		}
 	}
 
+	//register new users
 	function register()
 	{
 		//check to see if user is logged in
@@ -36,7 +63,6 @@ Class User extends Controller {
 		
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
 		$data['heading'] = 'Sign Up For A New Account';
-		$data['error'] = '';
 		$data['navigation'] = FALSE;
 		
 		//load form validation helper
@@ -65,22 +91,22 @@ Class User extends Controller {
 	//email callbback form validation function
 	function email_check($str)
 	{
-		$this->load->model('User_model', 'email');
-		$mail_db = $this->email->check_for_email($str);
+		$this->load->model('User_model', 'user');
+		$email_in_db = $this->user->check_for_email($str);
 
-		if ($mail_db > 0) {
-			$this->validation->set_message('email_check', 'The %s field  is already in use please use another email address.');
+		if ($email_in_db == TRUE) {
+			$this->form_validation->set_message('email_check', 'The %s is already in use please use another email address.');
 			return FALSE;
 		}else{
 			return TRUE;
 		}
 	}
-
+	
+	//verify valid user
 	function verify()
 	{
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
 		$data['heading'] = 'FBsync Login';
-		$data['error'] = FALSE;
 		$data['navigation'] = FALSE;
 		
 		$this->load->model('User_model', 'user');

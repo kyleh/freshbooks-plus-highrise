@@ -40,7 +40,6 @@
 | NO TRAILING SLASH!
 |
 */
-	//$application_folder = "/Users/kyleh/Documents/webdev/freshbooks_dev/freshbooks-plus-highrise/application";
 	$application_folder = 'application';
 /*
 |===============================================================

@@ -1,3 +1,9 @@
+<!-- 
+Settings View Template
+Outputs results from settings/index controller
+Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+Ver. 1.0 5/3/2009
+-->
 <?php echo $this->load->view('common/header'); ?>
 <div id="banner_wrap">
   <div id="banner">
@@ -12,8 +18,8 @@
 	<p>Click <strong>My Info</strong> then <strong>Reveal authentication token</strong> and copy and paste the token into the input field below. <strong>Your Highrise URL</strong> is simple, just get the URL that you log into and paste it here. For example, http://yourname.highrisehq.com. </p>
 	
 	<img src="<?php echo(base_url()); ?>public/stylesheets/images/settings.jpg" alt="FreshBooks screenshot of API settings page." style="float:right; border: 3px solid rgb(201, 201, 201); margin-left: 10px; margin-top: 10px;" />
-	<?php if ($error_data): ?>
-		<?php foreach ($error_data as $error): ?>
+	<?php if(isset($error_data)): ?>
+		<?php foreach($error_data as $error): ?>
 			<p class="error"><?php echo $error; ?></p>
 		<?php endforeach ?>
 	<?php endif ?>
@@ -24,19 +30,19 @@
 	<div id="apiform">
 		<div class="api-input">
           <label>Freshbooks API URL</label>
-			<input class="input" type="text" name="fburl" value="<?php echo $fburl ? $fburl : set_value('fburl'); ?>" size="50" />
+			<input class="input" type="text" name="fburl" value="<?php echo isset($fburl) ? $fburl : set_value('fburl'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Freshbooks Token</label>
-			<input class="input" type="text" name="fbtoken" value="<?php echo $fbtoken ? $fbtoken : set_value('fbtoken'); ?>" size="50" />
+			<input class="input" type="text" name="fbtoken" value="<?php echo isset($fbtoken) ? $fbtoken : set_value('fbtoken'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Highrise URL</label>
-			<input class="input" type="text" name="hrurl" value="<?php echo $hrurl ? $hrurl : set_value('hrurl'); ?>" size="50" />
+			<input class="input" type="text" name="hrurl" value="<?php echo isset($hrurl) ? $hrurl : set_value('hrurl'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Highrise Token</label>
-			<input class="input" type="text" name="hrtoken" value="<?php echo $hrtoken ? $hrtoken : set_value('hrtoken'); ?>" size="50" />
+			<input class="input" type="text" name="hrtoken" value="<?php echo isset($hrtoken) ? $hrtoken : set_value('hrtoken'); ?>" size="50" />
         </div>
 		<input class="submit" type="submit" name="submit" value="<?php echo $submitname ?>" />
 	</div>

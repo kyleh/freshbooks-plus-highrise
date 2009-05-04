@@ -1,4 +1,9 @@
-<!-- Sync View Main Page Template -->
+<!-- 
+Sync View Template
+Sync view that displays highrise tags
+Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+Ver. 1.0 5/3/2009
+-->
 <?php echo $this->load->view('common/header'); ?>
 
 <div id="banner_wrap">
@@ -8,8 +13,10 @@
 </div>
 
 <div id="content">
-		
-	<?php if (is_object($hr_tags)): ?>
+	<?php if (isset($error)): ?>
+		<p class="error"><?php echo $error; ?></p>
+	<?php endif ?>	
+	<?php if (isset($hr_tags)): ?>
 	<?php echo form_open('sync/sync_contacts', array('onSubmit' => "return submitonce(this)"))."\n"; ?>
 		<div id="tagform">
 			<h2>Choose Highrise contacts to import</h2>
@@ -33,11 +40,8 @@
 	  	<h2>Tag contacts before using this application</h2>
 			  <p>If you plan on using tags, please log into your Highrise account and tag your contacts appropriately. If you decide not to use tags, then all Highrise contacts will be added during the synchronization process.</p>
 	</div>
-	
-	<?php else: ?>
-	<p><?php echo $hr_tags; ?></p>
 	<?php endif ?>
-
+	
 </div><!-- end div content -->
 
 <!-- load the footer -->

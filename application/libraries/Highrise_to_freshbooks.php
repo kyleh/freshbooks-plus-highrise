@@ -56,19 +56,23 @@ class Highrise_to_freshbooks{
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_USERPWD, $this->hr_token);
 		curl_setopt($ch, CURLOPT_HTTPGET, true);
-		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,20);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+		//$info = curl_getinfo($ch);
 		$result = curl_exec($ch);
 		curl_close($ch);
 		
 		if($result == FALSE){//unable to establish connection returns bool false
-			return 'Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.';
+			throw new Exception('Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.');
+			//return 'Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.';
 		}elseif(preg_match("/denied/", $result)){
-			return "Error: <strong>".$result."</strong> Please check your Highrise API Token setting and try again.";
+			throw new Exception('Error: <strong>'.$result.'</strong> Please check your Highrise API Token setting and try again.');
+			//return "Error: <strong>".$result."</strong> Please check your Highrise API Token setting and try again.";
 		}elseif(preg_match("/<?xml/", $result)){
 			return simplexml_load_string($result);
 		}else{
-			return $result;
+			throw new Exception('Unable to connect to the API. Please try the request again.');
 		}
 		
 	}
@@ -95,16 +99,16 @@ class Highrise_to_freshbooks{
 		
 		//check for non xml result
 		if($result == FALSE){
-			return 'Error: Unable to connect to FreshBooks API.';
+			throw new Exception('Error: Unable to connect to FreshBooks API.');
 		}elseif(preg_match("/404 Error: Not Found/", $result) || preg_match("/DOCTYPE/", $result)){
-			return "Error: <strong>404 Error: Not Found</strong>. Please check you FreshBooks API URL setting and try again.  The FreshBooks API url is different from your FreshBooks account url.";
+			throw new Exception('Error: <strong>404 Error: Not Found</strong>. Please check you FreshBooks API URL setting and try again.  The FreshBooks API url is different from your FreshBooks account url.');
 		}
 		
 		//if xml check for FB status
 		if(preg_match("/<?xml/", $result)){
 			$fbxml = simplexml_load_string($result);
 			if ($fbxml->attributes()->status == 'fail') {
-				return 'Error: The following FreshBooks error occurred: '.$fbxml->error;
+				throw new Exception('Error: The following FreshBooks error occurred: '.$fbxml->error);
 			}else{
 				return $fbxml;
 			}
@@ -169,8 +173,6 @@ EOL;
  	{
 
  		$result_set = array();
- 		//$result = '';
- 		//$num = 1;
  		$states = array('AL'=>'Alabama', 'AK'=>'Alaska', 'AZ'=>'Arizona', 'AR'=>'Arkansas', 'AF'=>'Armed Forces Africa', 'AA'=>'Armed Forces Americas', 'AC'=>'Armed Forces Canada', 'AE'=>'Armed Forces Europe', 'AM'=>'Armed Forces Middle East', 'AP'=>'Armed Forces Pacific', 'CA'=>'California', 'CO'=>'Colorado', 'CT'=>'Connecticut', 'DE'=>'Delaware', 'DC'=>'District of Columbia', 'FL'=>'Florida', 'GA'=>'Georgia', 'GU'=>'Guam', 'ID'=>'Idaho', 'IL'=>'Illinois', 'IN'=>'Indiana', 'IA'=>'Iowa', 'KY'=>'Kansas', 'KS'=>'Kentucky', 'LA'=>'Louisiana', 'ME'=>'Maine', 'MD'=>'Maryland', 'MA'=>'Massachusetts', 'MI'=>'Michigan', 'MN'=>'Minnesota', 'MS'=>'Mississippi', 'MO'=>'Missouri', 'MT'=>'Montana', 'NE'=>'Nebraska', 'NV'=>'Nevada', 'NH'=>'New Hampshire', 'NJ'=>'New Jersey', 'NM'=>'New Mexico', 'NY'=>'New York', 'NC'=>'North Carolina', 'ND'=>'North Dakota', 'OH'=>'Ohio', 'OK'=>'Oklahoma', 'OR'=>'Oregon', 'PA'=>'Pennsylvania', 'PR'=>'Puerto Rico', 'RI'=>'Rhode Island', 'SC'=>'South Carolina', 'SD'=>'South Dakota', 'TN'=>'Tennessee', 'TX'=>'Texas', 'UT'=>'Utah', 'VT'=>'Vermont', 'VA'=>'Virginia', 'VI'=>'Virgin Islands', 'WA'=>'Washington', 'WV'=>'West Virginia', 'WI'=>'Wisconsin', 'WY'=>'Wyoming');
 
  		//compares email address from Highrise and Freshbooks to determine if client is already
@@ -186,15 +188,12 @@ EOL;
  				// get Highrise company data
 				if ($hr_client->{'company-id'} != '') {
 					$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
-	 				if (preg_match("/Error/", $hr_company)) {
-	 					return $hr_company;
-	 				}
 				}else{
 					$hr_company = '';
 				}
 
  				if(is_object($hr_company) && $hr_company != ''){
- 					$company = (string)$hr_company->name;
+ 					$company = htmlspecialchars(trim((string)$hr_company->name));
  				}else{
  					$company = 'Not Available';
  				}
@@ -203,8 +202,6 @@ EOL;
  												      'Company' => $company, 
  												      'Name' => $name,
 															'Message' => 'Email Address Required');
-
- 				//$hr_client->{'contact-data'}->{'email-addresses'}->{'email-address'}->address = $hr_client->{'first-name'}.$hr_client->{'last-name'}."@TEMP-EMAIL-ADDRESS.com";
  			}
  			//convert highrise email object to string for comparison
  			$hr_email = (string)$hr_client->{'contact-data'}->{'email-addresses'}->{'email-address'}->address;
@@ -222,36 +219,30 @@ EOL;
  			if($possible_client == 'new'){
  				//set client name
  				if ($hr_client->{'first-name'} != '') {
- 					$fname = (string)$hr_client->{'first-name'};
+ 					$fname = htmlspecialchars(trim((string)$hr_client->{'first-name'}));
  				}else{
  					$fname = 'Not Available';
  				}
-				$fname = htmlspecialchars($fname);
 				
  				if ($hr_client->{'last-name'} != '') {
- 					$lname = (string)$hr_client->{'last-name'};
+ 					$lname = htmlspecialchars(trim((string)$hr_client->{'last-name'}));
  				}else{
  					$lname = 'Not Available';
  				}
-				$lname = htmlspecialchars($lname);
 				
  				// get Highrise company data
 				if ($hr_client->{'company-id'} != '') {
 					$hr_company = $this->get_highrise_company($hr_client->{'company-id'});
-	 				if (preg_match("/Error/", $hr_company)) {
-	 					return $hr_company;
-	 				}
 				}else{
 					$hr_company = '';
 				}
 
  				if($hr_company != '' && is_object($hr_company)){
- 					$company = (string)$hr_company->name;
+ 					$company = htmlspecialchars(trim((string)$hr_company->name));
  				}else{
  					$company = 'Not Available';
  				}
-				$company = htmlspecialchars($company);
- 				$email = (string)$hr_email;
+ 				$email = htmlspecialchars(trim($hr_email));
  				//set all existing phone numbers
  				//initialize #'s to blank
  				$work_num = '';
@@ -261,28 +252,24 @@ EOL;
  				foreach($hr_client->{'contact-data'}->{'phone-numbers'}->{'phone-number'} as $phonenum){
  					switch ($phonenum->{'location'}) {
  						case 'Work':
- 							$work_num = (string)$phonenum->{'number'};
+ 							$work_num = htmlspecialchars(trim((string)$phonenum->{'number'}));
  							break;
  						case 'Mobile':
- 							$mobile_num = (string)$phonenum->{'number'};
+ 							$mobile_num = htmlspecialchars(trim((string)$phonenum->{'number'}));
  							break;
  						case 'Fax':
- 							$fax_num = (string)$phonenum->{'number'};
+ 							$fax_num = htmlspecialchars(trim((string)$phonenum->{'number'}));
  							break;
  						case 'Home':
- 							$home_num = (string)$phonenum->{'number'};
+ 							$home_num = htmlspecialchars(trim((string)$phonenum->{'number'}));
  							break;
  					}
  				}
  				//set address information
- 				$street = (string)$hr_client->{'contact-data'}->{'addresses'}->address->street;
-				$street = strip_tags($street);
-				$street = trim($street);
-				$street = htmlspecialchars($street);
- 				$city = (string)$hr_client->{'contact-data'}->{'addresses'}->address->city;
-				$city = htmlspecialchars($city);
+ 				$street = htmlspecialchars(trim((string)$hr_client->{'contact-data'}->{'addresses'}->address->street));
+ 				$city = htmlspecialchars(trim((string)$hr_client->{'contact-data'}->{'addresses'}->address->city));
  				//state abbreviation to full spelling conversion for FB compatability
- 				$state_raw = (string)$hr_client->{'contact-data'}->{'addresses'}->address->state;
+ 				$state_raw = trim((string)$hr_client->{'contact-data'}->{'addresses'}->address->state);
  					$state_raw = trim($state_raw);
  					$state_length = strlen($state_raw);
  					$state_abr = strtoupper($state_raw); 
@@ -291,9 +278,8 @@ EOL;
  					}else{
  						$state = $state_raw;
  					}
- 				//$state = (string)$hr_client->{'contact-data'}->{'addresses'}->address->state;
- 				$country = (string)$hr_client->{'contact-data'}->{'addresses'}->address->country;
- 				$zip = (string)$hr_client->{'contact-data'}->{'addresses'}->address->zip;
+ 				$country = htmlspecialchars(trim((string)$hr_client->{'contact-data'}->{'addresses'}->address->country));
+ 				$zip = htmlspecialchars(trim((string)$hr_client->{'contact-data'}->{'addresses'}->address->zip));
 
  			//build xml to send to Freshbooks
  			$xml =<<<EOL
@@ -331,9 +317,6 @@ EOL;
 
 				//send new client xml to freshbooks
  				$result = $this->freshbooks_api_request($xml);
- 				if (preg_match("/Error/", $result)) {
- 					return $result;
- 				}
  				
  				if($result->client_id){
  					$name = $fname.' '.$lname;

@@ -34,37 +34,50 @@
 | the active record class
 */
 
-$active_group = "default";
+$active_group = "local_dev";
 $active_record = TRUE;
 
-$db['default']['hostname'] = "localhost";
-$db['default']['username'] = "kyleh";
-$db['default']['password'] = "";
-$db['default']['database'] = "fb_highrise";
-$db['default']['dbdriver'] = "mysql";
-$db['default']['dbprefix'] = "";
-$db['default']['pconnect'] = TRUE;
-$db['default']['db_debug'] = TRUE;
-$db['default']['cache_on'] = FALSE;
-$db['default']['cachedir'] = "";
-$db['default']['char_set'] = "utf8";
-$db['default']['dbcollat'] = "utf8_general_ci";
+//Production server with standard authenication
+$db['production']['hostname'] = "localhost";
+$db['production']['username'] = "";
+$db['production']['password'] = "";
+$db['production']['database'] = "";
+$db['production']['dbdriver'] = "mysql";
+$db['production']['dbprefix'] = "";
+$db['production']['pconnect'] = TRUE;
+$db['production']['db_debug'] = FALSE;
+$db['production']['cache_on'] = FALSE;
+$db['production']['cachedir'] = "";
+$db['production']['char_set'] = "utf8";
+$db['production']['dbcollat'] = "utf8_general_ci";
 
+//Dev server with standard authenication 
+$db['local_dev']['hostname'] = "localhost";
+$db['local_dev']['username'] = "kyleh";
+$db['local_dev']['password'] = "";
+$db['local_dev']['database'] = "fb_highrise";
+$db['local_dev']['dbdriver'] = "mysql";
+$db['local_dev']['dbprefix'] = "";
+$db['local_dev']['pconnect'] = TRUE;
+$db['local_dev']['db_debug'] = TRUE;
+$db['local_dev']['cache_on'] = FALSE;
+$db['local_dev']['cachedir'] = "";
+$db['local_dev']['char_set'] = "utf8";
+$db['local_dev']['dbcollat'] = "utf8_general_ci";
 
-$db['oauth']['hostname'] = "localhost";
-$db['oauth']['username'] = "kyleh";
-$db['oauth']['password'] = "";
-$db['oauth']['database'] = "fb_highrise_oauth";
-$db['oauth']['dbdriver'] = "mysql";
-$db['oauth']['dbprefix'] = "";
-$db['oauth']['pconnect'] = TRUE;
-$db['oauth']['db_debug'] = TRUE;
-$db['oauth']['cache_on'] = FALSE;
-$db['oauth']['cachedir'] = "";
-$db['oauth']['char_set'] = "utf8";
-$db['oauth']['dbcollat'] = "utf8_general_ci";
-
-
+//Dev server with oAuth authenication 
+$db['local_dev_oauth']['hostname'] = "localhost";
+$db['local_dev_oauth']['username'] = "kyleh";
+$db['local_dev_oauth']['password'] = "";
+$db['local_dev_oauth']['database'] = "fb_highrise_oauth";
+$db['local_dev_oauth']['dbdriver'] = "mysql";
+$db['local_dev_oauth']['dbprefix'] = "";
+$db['local_dev_oauth']['pconnect'] = TRUE;
+$db['local_dev_oauth']['db_debug'] = TRUE;
+$db['local_dev_oauth']['cache_on'] = FALSE;
+$db['local_dev_oauth']['cachedir'] = "";
+$db['local_dev_oauth']['char_set'] = "utf8";
+$db['local_dev_oauth']['dbcollat'] = "utf8_general_ci";
 
 /* End of file database.php */
 /* Location: ./system/application/config/database.php */

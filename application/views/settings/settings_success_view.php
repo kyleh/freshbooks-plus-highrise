@@ -1,3 +1,9 @@
+<!-- 
+Settings View Template
+Outputs results from settings/index controller
+Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+Ver. 1.0 5/3/2009
+-->
 <?php echo $this->load->view('common/header'); ?>
 <div id="banner_wrap">
   <div id="banner">
