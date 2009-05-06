@@ -48,7 +48,7 @@ Class User extends Controller {
 		if (!$loggedin) {
 		$this->load->view('user/login_view',$data);
 		}else{
-			redirect('settings/index');
+			redirect('oa_settings/index');
 		}
 	}
 
@@ -58,7 +58,7 @@ Class User extends Controller {
 		//check to see if user is logged in
 		$loggedin = $this->session->userdata('loggedin');
 		if ($loggedin) {
-			redirect('settings/index');
+			redirect('oa_settings/index');
 		}
 		
 		$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
@@ -84,7 +84,7 @@ Class User extends Controller {
 			//set up session ans set session vars
 			$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
 			$this->session->set_userdata($userinfo); 
-			redirect('settings/index');
+			redirect('oa_settings/index');
 		}
 	}
 
@@ -119,12 +119,12 @@ Class User extends Controller {
 				$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
 				$this->session->set_userdata($userinfo);
 				//check for settings
-				$this->load->model('Settings_model', 'settings');
+				$this->load->model('Oa_settings_model', 'settings');
 				$got_settings = $this->settings->got_settings();
 				if ($got_settings > 0) {
 					redirect('sync/index');
 				}else{
-					redirect('settings/index');
+					redirect('oa_settings/index');
 				}
 			}else{
 				//return with error message

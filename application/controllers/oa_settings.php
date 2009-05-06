@@ -147,13 +147,16 @@ Class Oa_settings extends Controller
 			//validate highrise settings by pinging highrise api
 			$params = $this->_get_settings();
 			$this->load->library('Highrise_to_freshbooks', $params);
-			$check_highrise_settings = $this->_validate_highrise_settings();
+			
+			
+			//TODO try catch
+			//$check_highrise_settings = $this->_validate_highrise_settings();
 			
 			//if highrise setting good redirect to freshbooks oauth
 			if ($params['fb_oauth_token'] && $params['fb_oauth_token_secret']) {
 				redirect('sync/index');
 			}
-			redirect('settings/freshbooks_oauth');
+			redirect('oa_settings/freshbooks_oauth');
 		}
 	}
 
@@ -220,16 +223,17 @@ Class Oa_settings extends Controller
 		
 		//load freshbooks oauth library
 		$settings = $this->_get_settings();
-		$this->load->library('Freshbooks_oauth', $settings);
+		$this->load->library('FreshbooksOauth', $settings);
 		
 		//get request token - set url for authorize - get token response for session vars
 		//TODO: try catch
-		$auth_data = $this->freshbooks_oauth->create_authorize_url();
+		$auth_data = $this->freshbooksoauth->create_authorize_url();
 		
 		//DEBUG DATA
-		$data['output'] = $auth_data;
-		//$this->load->view('settings/freshbooks_oauth_view', $data);
+		//$data['debug'] = $auth_data;
+		//$this->load->view('settings/oa_test_view', $data);
 		//return;
+		////
 		
 		$data['auth_url'] = $auth_data['url'];
 		//set request token and secret in session vars
@@ -251,11 +255,11 @@ Class Oa_settings extends Controller
 	
 	//load freshbooks oauth library
 	$settings = $this->_get_settings();
-	$this->load->library('Freshbooks_oauth', $settings);
+	$this->load->library('FreshbooksOauth', $settings);
 	//request access token
 	$oauth_settings = array('token' => $this->session->userdata('token'), 'token_secret' => $this->session->userdata('token_secret'));
 	//request access token
-	$request_access_token = $this->freshbooks_oauth->oauth_access($oauth_settings);
+	$access_token = $this->freshbooksoauth->obtain_access_token($oauth_settings);
 	
 	
 	//Debug Data
@@ -265,17 +269,17 @@ Class Oa_settings extends Controller
 	
 	
 	//if access request successful add to database
-	if ($request_access_token) {
-		$settings['fb_oauth_token'] = $request_access_token['oauth_token'];
-		$settings['fb_oauth_token_secret'] = $request_access_token['oauth_token_secret'];
-		$this->load->model('Settings_model','settings');
+	if ($access_token) {
+		$settings['fb_oauth_token'] = $access_token['oauth_token'];
+		$settings['fb_oauth_token_secret'] = $access_token['oauth_token_secret'];
+		$this->load->model('Oa_settings_model','settings');
 		$update_settings = $this->settings->update_oauth_settings($settings);
 	}else{
 		//TODO: no access tokens redirect to freshbooks_oauth
 	}
 
-	$data['result'] = $request_access_token;
-	$this->load->view('settings/oauth_success_view', $data);
+	$data['result'] = $access_token;
+	$this->load->view('settings/oa_success_view', $data);
 	
   }
 
@@ -286,8 +290,8 @@ Class Oa_settings extends Controller
 		//first time oatuh
 		$settings = $this->_get_settings();
 		
-		$this->load->library('Freshbooks_oauth', $settings);
-		$url_enc = $this->freshbooks_oauth->get_fb_assets(null, null, null);
+		$this->load->library('FreshbooksOauth', $settings);
+		$url_enc = $this->freshbooksoauth->get_fb_assets(null, null, null);
 		
 		$data['settings'] = $settings;
 		$data['url'] = $url_enc;

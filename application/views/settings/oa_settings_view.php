@@ -24,7 +24,7 @@
 	
 	<?php echo validation_errors(); ?>
 	
-	<?php echo form_open('settings')."\n"; ?>
+	<?php echo form_open('oa_settings')."\n"; ?>
 	<div id="apiform">
 		<div class="api-input">
           <label>Freshbooks URL</label>
