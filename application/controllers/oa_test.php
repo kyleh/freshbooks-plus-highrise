@@ -68,19 +68,21 @@ Class Oa_test extends Controller
 	function _get_settings()
 	{
 		$this->load->model('Oa_settings_model','settings');
-		$settings = $this->settings->get_settings();
-		if ( ! $settings)
+		$api_settings = $this->settings->get_settings();
+		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
+		if ( ! $api_settings)
 		{
-			redirect('settings/index');
+			redirect('oa_settings/freshbooks_oauth');
 		}
 		else
 		{
 			return array(
-							'fburl' => $settings->fburl,
-							'fb_oauth_token_secret' => $settings->fb_oauth_token_secret,
-							'fb_oauth_token' => $settings->fb_oauth_token,
-							'hrurl' => $settings->hrurl,
-							'hrtoken' => $settings->hrtoken,
+							'got_settings' => true,
+							'fb_url' => $fb_url,
+							'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
+							'fb_oauth_token' => $api_settings->fb_oauth_token,
+							'hrurl' => $api_settings->hrurl,
+							'hrtoken' => $api_settings->hrtoken,
 							);
 		}
 	}
@@ -99,7 +101,7 @@ Class Oa_test extends Controller
 		$settings = $this->_get_settings();
 		$this->load->library('FreshbooksOauth', $settings);
 		
-		$assets = $this->freshbooksoauth->get_fb_clients();
+		$assets = $this->freshbooksoauth->test_fb_settings();
 		
 		$data['debug'] = $assets;
 		$this->load->view('oauth_test_view', $data);

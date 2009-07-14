@@ -35,19 +35,21 @@ Class Oa_settings extends Controller
 	function _get_settings()
 	{
 		$this->load->model('Oa_settings_model','settings');
-		$settings = $this->settings->get_settings();
-		if ( ! $settings)
+		$api_settings = $this->settings->get_settings();
+		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
+		if ( ! $api_settings)
 		{
-			redirect('settings/index');
+			return array('got_settings' => false, 'fb_url' => $fb_url, 'fb_oauth_token_secret' => '', 'fb_oauth_token' => '');
 		}
 		else
 		{
 			return array(
-							'fburl' => $settings->fburl,
-							'fb_oauth_token_secret' => $settings->fb_oauth_token_secret,
-							'fb_oauth_token' => $settings->fb_oauth_token,
-							'hrurl' => $settings->hrurl,
-							'hrtoken' => $settings->hrtoken,
+							'got_settings' => true,
+							'fb_url' => $fb_url,
+							'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
+							'fb_oauth_token' => $api_settings->fb_oauth_token,
+							'hrurl' => $api_settings->hrurl,
+							'hrtoken' => $api_settings->hrtoken,
 							);
 		}
 	}
@@ -219,29 +221,34 @@ Class Oa_settings extends Controller
 			$data['navigation'] = TRUE;
 		}
 		
-		$data['title']   = 'Highrise to Freshbooks Sync Tool :: OAuth Settings';
+		$data['title'] = 'Freshbooks + Highrise Sync Tool :: OAuth Settings';
 		
 		//load freshbooks oauth library
 		$settings = $this->_get_settings();
+		//$settings = 'BS';
+		// $data['debug'] = $settings;
+		// $this->load->view('test_view', $data);
+		// return;
+		
 		$this->load->library('FreshbooksOauth', $settings);
 		
 		//get request token - set url for authorize - get token response for session vars
-		//TODO: try catch
-		$auth_data = $this->freshbooksoauth->create_authorize_url();
-		
-		//DEBUG DATA
-		//$data['debug'] = $auth_data;
-		//$this->load->view('settings/oa_test_view', $data);
-		//return;
-		////
-		
-		$data['auth_url'] = $auth_data['url'];
+		try {
+			$auth_data = $this->freshbooksoauth->create_authorize_url();
+		} catch (Exception $e) {
+			//todo where to output errors????????
+			$error_data = array($e->getMessage());
+			$data['debug'] = $error_data;
+			$this->load->view('test_view', $data);
+			return;
+		}
+
 		//set request token and secret in session vars
 		$token_info = array('token' => $auth_data['token'], 'token_secret' => $auth_data['token_secret']);
 		$this->session->set_userdata($token_info);
-		
-		//load authorization url to redirect to freshbooks for authorization
-		$this->load->view('settings/freshbooks_oauth_view', $data);
+		//send to freshbooks oauth
+		redirect($auth_data['url']);
+		return;
 	}
 
 	function request_token_ready(){
@@ -254,34 +261,31 @@ Class Oa_settings extends Controller
 	$data['title']  = 'Highrise to Freshbooks Sync Tool :: FreshBooks OAuth Settings Success';
 	
 	//load freshbooks oauth library
-	$settings = $this->_get_settings();
-	$this->load->library('FreshbooksOauth', $settings);
+	$params = $this->_get_settings();
+	$this->load->library('FreshbooksOauth', $params);
 	//request access token
 	$oauth_settings = array('token' => $this->session->userdata('token'), 'token_secret' => $this->session->userdata('token_secret'));
 	//request access token
 	$access_token = $this->freshbooksoauth->obtain_access_token($oauth_settings);
-	
-	
-	//Debug Data
-	// $data['result'] = $request_access_token;
-	// $this->load->view('settings/oauth_success_view', $data);
-	// return;
-	
-	
 	//if access request successful add to database
 	if ($access_token) {
-		$settings['fb_oauth_token'] = $access_token['oauth_token'];
-		$settings['fb_oauth_token_secret'] = $access_token['oauth_token_secret'];
 		$this->load->model('Oa_settings_model','settings');
-		$update_settings = $this->settings->update_oauth_settings($settings);
+		$oa_settings['fb_oauth_token'] = $access_token['oauth_token'];
+		$oa_settings['fb_oauth_token_secret'] = $access_token['oauth_token_secret'];
+		//if already have settings update else add new settings
+		if ($params['got_settings'] == true) {
+			$update_settings = $this->settings->update_oauth_settings($oa_settings);
+		}else{
+			$insert_settings = $this->settings->insert_oauth_settings($oa_settings);
+		}
 	}else{
 		//TODO: no access tokens redirect to freshbooks_oauth
 	}
-
+	
 	$data['result'] = $access_token;
 	$this->load->view('settings/oa_success_view', $data);
 	
-  }
+	}
 
 	function oauth_test(){
 	

@@ -37,37 +37,28 @@ Class User_model extends Model {
         parent::Model();
     }
   
-	//email callback validation function  
-	function check_for_email($str)
-	{
-		$this->db->where('email', $str);
+	function get_user($fb_url)
+  {
+		$this->db->where('fb_url', $fb_url);
 		$this->db->from('users');
 		$query = $this->db->get();
-		if ($query->num_rows() > 0) {
-			return TRUE;
-		}else{
-			return FALSE;
-		}
 		
-	}
-    
-	function getuser($email)
-    {
-		$this->db->where('email', $email);
-		$this->db->from('users');
-		$query = $this->db->get();
-		return $query->result();
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		} else {
+			return false;
+		}
 	}
 
-	function insert_user()
+	function insert_user($fb_url)
 	{
 		$data = array(
-			'name' => $this->input->post('name'),
-			'email' => $this->input->post('email'),
-			'password' => md5($this->input->post('password'))
+			'fb_url' => $fb_url,
+			'password' => $this->input->post('password')
 			);
 		
-		$this->db->insert('users', $data);
+		return $this->db->insert('users', $data);
+		
 	}
 	
 	function get_all_users()

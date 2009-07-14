@@ -63,18 +63,28 @@ Class Oa_settings_model extends Model {
 		$this->db->update('apisettings',$this);
 	}	
 	
+	function insert_oauth_settings($settings)
+	{
+		$data = array(
+			'userid' => $this->session->userdata('userid'),
+			'fb_oauth_token' => $settings['fb_oauth_token'],
+			'fb_oauth_token_secret' => $settings['fb_oauth_token_secret'],
+			);
+		
+		$this->db->insert('apisettings',$data);
+	}
+	// 
 	function update_oauth_settings($settings)
 	{
-		$this->userid = $this->session->userdata('userid');
-		$this->fburl = $settings['fburl'];
-		$this->hrurl  = $settings['hrurl'];
-		$this->hrtoken = $settings['hrtoken'];
-		$this->fb_oauth_token  = $settings['fb_oauth_token'];
-		$this->fb_oauth_token_secret = $settings['fb_oauth_token_secret'];
+		$data = array(
+			'fb_oauth_token' => $settings['fb_oauth_token'],
+			'fb_oauth_token_secret' => $settings['fb_oauth_token_secret']
+			);
 		
-		$this->db->where('userid',$this->userid);
-		$this->db->update('apisettings',$this);
+		$this->db->where('userid',$this->session->userdata('userid'));
+		$this->db->update('apisettings',$data);
 	}
+	
 	
 
 }

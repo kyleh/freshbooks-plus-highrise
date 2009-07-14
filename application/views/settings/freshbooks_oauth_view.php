@@ -1,4 +1,4 @@
-<?php echo $this->load->view('common/header'); ?>
+<?php echo $this->load->view('_common/header'); ?>
 <div id="banner_wrap">
   <div id="banner">
     <div class="banner_title">FreshBooks API Authorization</div>
@@ -6,7 +6,7 @@
 </div>
 <div id="content">
 	<div class="step_title">
-			Step 3 of 3
+			Step 1 of 2
 	</div><!-- end div banner_title -->
 
 	<h3>Authorize FreshBooks API Settings</h3>
@@ -22,4 +22,4 @@
 	<div style="margin-top:30px;"><a href="<?php echo isset($auth_url) ? $auth_url : ''; ?>" class="submit" >Authorize API Settings</a></div>
 </div><!-- end div content -->
 <!-- load the footer -->
-<?php echo $this->load->view('common/footer'); ?>
+<?php echo $this->load->view('_common/footer'); ?>

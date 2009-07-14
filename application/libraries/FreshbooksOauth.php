@@ -8,7 +8,7 @@
 
 class FreshbooksOauth{
 
-	private $oauth_consumer_secret = 'c5d3c6a30d307d28b1a409c4e4399ecc';
+	private $oauth_consumer_secret = 'b83b947d1287299e9e04ccf92f4061dd';
 	private $oauth_consumer_key = 'highrisehq';
 	private $oauth_token = '';
 	private $oauth_token_secret = '';
@@ -21,10 +21,10 @@ class FreshbooksOauth{
 	private $access_url = '';
 
 	function __construct($settings){
-		$this->relm_url = $settings['fburl'].'/api/2.1/xml-in';
-		$this->request_url = $settings['fburl'].'/oauth/oauth_request.php';
-		$this->authorize_url = $settings['fburl'].'/oauth/oauth_authorize.php';
-		$this->access_url = $settings['fburl'].'/oauth/oauth_access.php';
+		$this->relm_url = $settings['fb_url'].'/api/2.1/xml-in';
+		$this->request_url = $settings['fb_url'].'/oauth/oauth_request.php';
+		$this->authorize_url = $settings['fb_url'].'/oauth/oauth_authorize.php';
+		$this->access_url = $settings['fb_url'].'/oauth/oauth_access.php';
 		$this->oauth_token = $settings['fb_oauth_token'];
 		$this->oauth_token_secret = $settings['fb_oauth_token_secret'];
 	}
@@ -285,13 +285,13 @@ class FreshbooksOauth{
 		return $result;
 	}
 	
-	function get_fb_clients()
+	function test_fb_settings()
 	{
 		$xml =<<<EOL
 		<?xml version="1.0" encoding="utf-8"?>
 		<request method="client.list">
 		  <page>1</page>
-		  <per_page>10</per_page>
+		  <per_page>100</per_page>
 		</request>
 EOL;
 	

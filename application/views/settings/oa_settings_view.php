@@ -1,4 +1,4 @@
-<?php echo $this->load->view('common/header'); ?>
+<?php echo $this->load->view('_common/header'); ?>
 <div id="banner_wrap">
   <div id="banner">
     <div class="banner_title">Highrise to FreshBooks API Settings</div>
@@ -43,4 +43,4 @@
 	</form>
 </div><!-- end div content -->
 <!-- load the footer -->
-<?php echo $this->load->view('common/footer'); ?>
+<?php echo $this->load->view('_common/footer'); ?>

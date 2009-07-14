@@ -32,109 +32,219 @@
 Class User extends Controller {
 	
 	function __construct()
-    {
-	    parent::Controller();
-			$this->load->helper(array('form', 'url', 'html'));		
-    }
+  {
+   parent::Controller();
+	$this->load->helper(array('form', 'url', 'html'));
+	$this->load->model('User_model', 'user');
+  }
 	
 	function index()
 	{
 		//load page specific variables
 		$loggedin = $this->session->userdata('loggedin');
-		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
+		$data['title'] = 'FreshBooks + Highrise Sync Tool::Login';
 		$data['heading'] = 'FreshBooks + Highrise Login';
 		$data['navigation'] = FALSE;
 		//check to see if user is logged in
 		if (!$loggedin) {
 		$this->load->view('user/login_view',$data);
 		}else{
+			//check oauth settings
 			redirect('oa_settings/index');
 		}
 	}
-
-	//register new users
-	function register()
+	
+	private function _send_to_oauth($fb_url)
 	{
-		//check to see if user is logged in
-		$loggedin = $this->session->userdata('loggedin');
-		if ($loggedin) {
-			redirect('oa_settings/index');
+		
+		
+		
+	}
+	
+	private function _verify_fb_settings()
+	{
+		$this->load->model('Oa_settings_model','settings');
+		$settings = $this->settings->get_settings();
+				
+		if ($settings == false || $settings->fb_oauth_token_secret == '')
+		{
+			redirect('oa_settings/freshbooks_oauth');
+			return;
+		}else{
+			$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
+			$settings = array(
+									'fb_url' => $fb_url,
+									'fb_oauth_token_secret' => $settings->fb_oauth_token_secret,
+									'fb_oauth_token' => $settings->fb_oauth_token,
+									'hrurl' => $settings->hrurl,
+									'hrtoken' => $settings->hrtoken,
+									);
+			
+			$this->load->library('FreshbooksOauth', $settings);
+			try {
+				$fb_test = $this->freshbooksoauth->test_fb_settings();
+				return true;
+			} catch (Exception $e) {
+				redirect('oa_settings/freshbooks_oauth');
+				return;
+			}
+			
+			
+		
 		}
+	}
+	
+	private function _verify_hr_settings()
+	{
 		
-		$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
-		$data['heading'] = 'Sign Up For A New Account';
-		$data['navigation'] = FALSE;
 		
+	}
+
+	private function _register_user()
+	{
 		//load form validation helper
 		$this->load->library('form_validation');
-		$this->form_validation->set_error_delimiters('<p class="error">', '</p>');
+		$this->form_validation->set_error_delimiters('<span class="login_error">', '</span>');
 		
-		$this->form_validation->set_rules('name', 'Full Name', 'required');
-		$this->form_validation->set_rules('email', 'Email Address', 'required|valid_email|callback_email_check');
-		$this->form_validation->set_rules('password', 'Password', 'required|matches[passconf]');
-		$this->form_validation->set_rules('passconf', 'Password Conformation', 'required');
-
+		$this->form_validation->set_rules('fburl', 'FreshBooks Url', 'trim|required');
+		$this->form_validation->set_rules('password', 'Password', 'trim|required|sha1');
+		
 		if ($this->form_validation->run() == FALSE){
-			$this->load->view('user/register_view', $data);
+			$data['title'] = 'FreshBooks + Highrise Sync Tool::Login';
+			$this->load->view('user/login_view', $data);
 		}else{
-			$this->load->model('User_model', 'user');
+			//check for .freshbooks.com or https:// or http:// and remove if present
+			$fb_url = $this->input->post('fburl');
+			$remove = array('.freshbooks.com', 'http://', 'https://');
+			$fb_url = str_replace($remove, '', $fb_url);
+			
 			//insert user
-			$this->user->insert_user();
-			$user = $this->user->getuser($this->input->post('email'));
+			$insert_user = $this->user->insert_user($fb_url);
+			//get user by FreshBooks Url
+			$user = $this->user->get_user($fb_url);
 			//set up session ans set session vars
-			$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
+			$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url);
 			$this->session->set_userdata($userinfo); 
-			redirect('oa_settings/index');
+			redirect('oa_settings/freshbooks_oauth');
 		}
 	}
+
+	
+	//register new users
+	// function register()
+	// {
+	// 	//check to see if user is logged in
+	// 	$loggedin = $this->session->userdata('loggedin');
+	// 	if ($loggedin) {
+	// 		redirect('oa_settings/index');
+	// 	}
+	// 	
+	// 	$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
+	// 	$data['heading'] = 'Sign Up For A New Account';
+	// 	$data['navigation'] = FALSE;
+	// 	
+	// 	//load form validation helper
+	// 	$this->load->library('form_validation');
+	// 	$this->form_validation->set_error_delimiters('<p class="error">', '</p>');
+	// 	
+	// 	$this->form_validation->set_rules('name', 'Full Name', 'required');
+	// 	$this->form_validation->set_rules('email', 'Email Address', 'required|valid_email|callback_email_check');
+	// 	$this->form_validation->set_rules('password', 'Password', 'required|matches[passconf]');
+	// 	$this->form_validation->set_rules('passconf', 'Password Conformation', 'required');
+	// 
+	// 	if ($this->form_validation->run() == FALSE){
+	// 		$this->load->view('user/register_view', $data);
+	// 	}else{
+	// 		$this->load->model('User_model', 'user');
+	// 		//insert user
+	// 		$this->user->insert_user();
+	// 		$user = $this->user->getuser($this->input->post('email'));
+	// 		//set up session ans set session vars
+	// 		$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
+	// 		$this->session->set_userdata($userinfo); 
+	// 		redirect('oa_settings/index');
+	// 	}
+	// }
+
+
+
+
 
 	//email callbback form validation function
-	function email_check($str)
-	{
-		$this->load->model('User_model', 'user');
-		$email_in_db = $this->user->check_for_email($str);
-
-		if ($email_in_db == TRUE) {
-			$this->form_validation->set_message('email_check', 'The %s is already in use please use another email address.');
-			return FALSE;
-		}else{
-			return TRUE;
-		}
-	}
+	// function email_check($str)
+	// {
+	// 	$this->load->model('User_model', 'user');
+	// 	$email_in_db = $this->user->check_for_email($str);
+	// 
+	// 	if ($email_in_db == TRUE) {
+	// 		$this->form_validation->set_message('email_check', 'The %s is already in use please use another email address.');
+	// 		return FALSE;
+	// 	}else{
+	// 		return TRUE;
+	// 	}
+	// }
 	
 	//verify valid user
 	function verify()
 	{
-		$data['title'] = 'Highrise to Freshbooks Sync Tool::Login';
-		$data['heading'] = 'FBsync Login';
-		$data['navigation'] = FALSE;
+		//check for .freshbooks.com or https:// or http:// and remove if present
+		$fb_url = $this->input->post('fburl', TRUE);
+		$remove = array('.freshbooks.com', 'http://', 'https://');
+		$fb_url = str_replace($remove, '', $fb_url);
+		//check database for freshbooks subdomain
+		$user = $this->user->get_user($fb_url);
 		
-		$this->load->model('User_model', 'user');
-		$user = $this->user->getuser($this->input->post('email'));
-		$password = md5($this->input->post('password'));
-
+		
+		// $data['debug'] = $user;
+		// $this->load->view('test_view', $data);
+		// return;
+		
+				
 		if ($user) {
-			if ($user[0]->password == $password) {
-				//start session - set vars
-				$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
-				$this->session->set_userdata($userinfo);
-				//check for settings
-				$this->load->model('Oa_settings_model', 'settings');
-				$got_settings = $this->settings->got_settings();
-				if ($got_settings > 0) {
-					redirect('sync/index');
-				}else{
-					redirect('oa_settings/index');
-				}
+			$password = sha1($this->input->post('password', TRUE));
+			//set session vars
+			if ($user->password == $password) {
+				//set session data
+				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url);
+				$this->session->set_userdata($userinfo); 
+				
+				//check for fb settings
+				$fb_settings = $this->_verify_fb_settings();
+
+				//check highrise settings
+				$hr_settings = $this->_verify_highrise_settings();
 			}else{
-				//return with error message
 				$data['error'] = "Invalid Email or Password - Please Try Again.";
+				$this->load->view('user/login_view',$data);
 			}
 		}else{
-			//return with error message
-			$data['error'] = "Your Email Address Was Not Found";
+			$register = $this->_register_user();
 		}
-		$this->load->view('user/login_view',$data);
+		
+		
+		
+		// if ($user) {
+		// 	if ($user[0]->password == $password) {
+		// 		//start session - set vars
+		// 		$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
+		// 		$this->session->set_userdata($userinfo);
+		// 		//check for settings
+		// 		$this->load->model('Oa_settings_model', 'settings');
+		// 		$got_settings = $this->settings->got_settings();
+		// 		if ($got_settings > 0) {
+		// 			redirect('sync/index');
+		// 		}else{
+		// 			redirect('oa_settings/index');
+		// 		}
+		// 	}else{
+		// 		//return with error message
+		// 		$data['error'] = "Invalid Email or Password - Please Try Again.";
+		// 	}
+		// }else{
+		// 	//return with error message
+		// 	$data['error'] = "Your Email Address Was Not Found";
+		// }
+		// $this->load->view('user/login_view',$data);
 
 	}
 	
