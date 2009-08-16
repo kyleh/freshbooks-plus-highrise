@@ -53,14 +53,7 @@ Class User extends Controller {
 			redirect('oa_settings/index');
 		}
 	}
-	
-	private function _send_to_oauth($fb_url)
-	{
 		
-		
-		
-	}
-	
 	private function _verify_fb_settings()
 	{
 		$this->load->model('Oa_settings_model','settings');
@@ -88,17 +81,14 @@ Class User extends Controller {
 				redirect('oa_settings/freshbooks_oauth');
 				return;
 			}
-			
-			
-		
 		}
 	}
 	
-	private function _verify_hr_settings()
-	{
-		
-		
-	}
+	// private function _verify_hr_settings()
+	// {
+	// 	
+	// 	
+	// }
 
 	private function _register_user()
 	{
@@ -208,11 +198,16 @@ Class User extends Controller {
 				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url);
 				$this->session->set_userdata($userinfo); 
 				
+								
+				
 				//check for fb settings
 				$fb_settings = $this->_verify_fb_settings();
-
+	
 				//check highrise settings
-				$hr_settings = $this->_verify_highrise_settings();
+				//$hr_settings = $this->_verify_highrise_settings();
+				
+				
+			
 			}else{
 				$data['error'] = "Invalid Email or Password - Please Try Again.";
 				$this->load->view('user/login_view',$data);
@@ -245,7 +240,7 @@ Class User extends Controller {
 		// 	$data['error'] = "Your Email Address Was Not Found";
 		// }
 		// $this->load->view('user/login_view',$data);
-
+	
 	}
 	
 	function logout()
