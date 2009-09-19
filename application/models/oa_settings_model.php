@@ -15,14 +15,17 @@ Class Oa_settings_model extends Model {
         parent::Model();
     }
     
-	function got_settings()
-	{
-		$this->userid = $this->session->userdata('userid');
-		$this->db->where('userid', $this->userid);
-		$this->db->from('apisettings');
-		$query = $this->db->get();
-		return $query->num_rows(); 
-	}
+	// function got_settings()
+	// {
+	// 	$this->userid = $this->session->userdata('userid');
+	// 	$this->db->where('userid', $this->userid);
+	// 	$this->db->from('apisettings');
+	// 	$query = $this->db->get();
+	// 	if (condition) {
+	// 		# code...
+	// 	}
+	// 	return $query->num_rows(); 
+	// }
     
 	 	/**
 	 * Gets API settings.
@@ -63,22 +66,22 @@ Class Oa_settings_model extends Model {
 		$this->db->update('apisettings',$this);
 	}	
 	
-	function insert_oauth_settings($settings)
+	function insert_fb_settings($settings)
 	{
 		$data = array(
 			'userid' => $this->session->userdata('userid'),
-			'fb_oauth_token' => $settings['fb_oauth_token'],
-			'fb_oauth_token_secret' => $settings['fb_oauth_token_secret'],
+			'fb_oauth_token' => $settings['oauth_token'],
+			'fb_oauth_token_secret' => $settings['oauth_token_secret'],
 			);
 		
 		$this->db->insert('apisettings',$data);
 	}
 	// 
-	function update_oauth_settings($settings)
+	function update_fb_settings($settings)
 	{
 		$data = array(
-			'fb_oauth_token' => $settings['fb_oauth_token'],
-			'fb_oauth_token_secret' => $settings['fb_oauth_token_secret']
+			'fb_oauth_token' => $settings['oauth_token'],
+			'fb_oauth_token_secret' => $settings['oauth_token_secret']
 			);
 		
 		$this->db->where('userid',$this->session->userdata('userid'));

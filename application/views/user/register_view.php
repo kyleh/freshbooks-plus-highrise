@@ -1,52 +1,63 @@
 <!-- 
-Register View Template
-Register for new account page
+Login View Template
+Login View Page
 Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
-Ver. 1.0 5/3/2009
+Ver. 1.0
 -->
-<?php echo $this->load->view('common/header'); ?>
-<div id="banner_wrap">
-  <div id="banner">
-    <div class="banner_title">Welcome to the Highrise to FreshBooks Sync Tool</div>
-  </div>
+<?php echo $this->load->view('_common/login_header'); ?>
+
+<div class="login-window">
+	<table class="window" cellspacing="0">
+		<tr class="one">
+			<td class="one"></td>
+			<td class="two"></td>
+			<td class="three"></td>	
+		</tr>
+		<tr class="two">
+			<td class="one"></td>
+			<td class="two">
+				<div class="bg_blue">
+					<div style="min-height: 300px;" class="span-20 bg_white">
+						<img src="<?php echo(base_url()); ?>public/images/freshbooks.highrise.gif" alt="Freshbooks + Highrise" width="352" height="75" />
+						<div class="login-form">
+							<div>
+								<?php echo form_open('user/register')."\n"; ?>
+									<label for="subdomain" class="login-label">FreshBooks Url:</label> 
+									<input type="text" name="fburl" value="xxxxx" />
+									<br />
+									<span id="url-help-text"><strong>xxxxx.freshbooks.com</strong></span>
+									<br />
+									<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
+									<br />
+									<label for="confpassword" class="login-label">Confirm Password:</label> <input type="password" name="confpassword" />
+									<input type="hidden" name="register" value="true">
+									<button value="submit"><span><span>Create Account</span></span></button>
+								</form>
+							</div>
+							<div class="login-form-footer"></div>
+							<?php echo validation_errors(); ?>
+							<?php if (isset($error)): ?>
+								<span style="color:red; padding-top:10px"><?php echo $error ?></span>
+							<?php endif ?>
+						</div>
+					</div><!-- end div login-form -->
+					<div class="span-9 prepend-1 white">
+						<h2>FreshBooks + Highrise</h2>
+						<p>
+							Did you close a deal in <a href="" target="_blank" style="color: white;">Highrise?</a> Move the contact into <a href="" style="color: white;">FreshBooks</a> by tagging it with client and using this handy connector. 
+						</p>
+						<p>Already have a FreshBooks and Highrise connector account? <?php echo anchor('user/index', 'Return to login.', array('style' => 'color:white')); ?></p>
+					</div>
+
+					<div class="clear"></div>
+				</div>
+			</td>
+			<td class="three"></td>	
+		</tr>
+		<tr class="three">
+			<td class="one"></td>
+			<td class="two"></td>
+			<td class="three"></td>	
+		</tr>
+	</table>
 </div>
-<div id="content">
-<div id="user_form_wrap">
-	<div id="user_form">
-		<div id="sub-header">
-			<ul>
-				<li><?php echo anchor('user/index', 'I Already Have An Account'); ?></li>
-		    </ul>
-		</div>
-		<h1><?php echo $heading ?></h1>
-		<?php echo validation_errors(); ?>
-		<?php echo form_open('user/register')."\n"; ?>
-		<div>
-			<div class="login-input">
-			  <label>Full Name</label>
-				<input class="input" type="text" name="name" id="name" value="<?php echo set_value('name');?>" size="25" />
-			  </label>
-			</div>
-			<div class="login-input">
-			  <label>Email Address</label>
-				<input class="input" type="text" name="email" id="email" value="<?php echo set_value('email');?>" size="25" />
-			  </label>
-			</div>
-			<div class="login-input">
-			  <label>Password</label>
-				<input class="input" type="password" name="password" id="password" value="" value="<?php echo set_value('password');?>" size="25" />
-			  </label>
-			</div>
-			<div class="login-input">
-			  <label>Password Confirm</label>
-				<input class="input" type="password" name="passconf" value="" value="<?php echo set_value('passconf');?>" size="25" />
-			  </label>
-			</div>
-			<input class="submit" type="submit" name="submit" value="Submit" />
-		</div>
-		</form>
-	</div>
-</div>
-</div><!-- end div content -->
-<!-- load the footer -->
-<?php echo $this->load->view('common/footer'); ?>

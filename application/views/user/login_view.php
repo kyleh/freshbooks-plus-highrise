@@ -27,22 +27,20 @@ Ver. 1.0 5/3/2009
 								<?php echo form_open('user/verify')."\n"; ?>
 
 								<label for="subdomain" class="login-label">FreshBooks Url:</label> 
-								<input type="text" name="fburl" value="xxxx" />
+								<input type="text" name="fburl" value="<?php echo isset($fb_url) ? $fb_url:'xxxxx' ?>" />
 								<br />
 								<span id="url-help-text"><strong>xxxxx.freshbooks.com</strong></span>
 								<br />
-								<label for="password" class="login-label">Password</label> <input type="password" name="password" />
-								
+								<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
 								<button value="submit"><span><span>Login</span></span></button>
 								</form>
 							</div>
 							<div class="login-form-footer"></div>
+							<p>Forgot your password? <?php echo anchor('user/reset_password', 'Reset Password', array('style' => 'color:blue')); ?></p>
 							<?php echo validation_errors(); ?>
-								<?php
-								 //if(//$error){
-									//echo '<span style="padding-left: 10px; color: red;">';
-									//}; 
-								?>
+							<?php if (isset($error)): ?>
+								<span style="color:red;"><?php echo $error ?></span>
+							<?php endif ?>
 						</div>
 					</div>
 
@@ -51,7 +49,7 @@ Ver. 1.0 5/3/2009
 						<p>
 							Did you close a deal in <a href="" target="_blank" style="color: white;">Highrise?</a> Move the contact into <a href="" style="color: white;">FreshBooks</a> by tagging it with client and using this handy connector. 
 						</p>
-						<p>New to the FreshBooks and Highrise connector? <a href="" style="color: white;">Create an account.</a></p>
+						<p>New to the FreshBooks and Highrise connector? <?php echo anchor('user/register', 'Create an account.', array('style' => 'color:white')); ?></p>
 					</div>
 
 					<div class="clear"></div>
@@ -68,13 +66,3 @@ Ver. 1.0 5/3/2009
 	</table>
 
 </div>
-
-
-
-
-
-
-
-
-
-

@@ -12,7 +12,7 @@ Class Oa_settings extends Controller
 	 * Checks user login status.
 	 *
 	 * @return bool	True on success, False and redirect to login on fail
-	 **/
+	*/
 	function _check_login()
 	{
 		$loggedin = $this->session->userdata('loggedin');
@@ -37,20 +37,31 @@ Class Oa_settings extends Controller
 		$this->load->model('Oa_settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
-		if ( ! $api_settings)
-		{
-			return array('got_settings' => false, 'fb_url' => $fb_url, 'fb_oauth_token_secret' => '', 'fb_oauth_token' => '');
-		}
-		else
-		{
+		
+		if ($api_settings) {
+			
+			$fb_settings = ($api_settings->fb_oauth_token_secret == '' || $api_settings->fb_oauth_token == '') ? FALSE : TRUE;
+			$hr_settings = ($api_settings->hrurl == '' || $api_settings->hrtoken == '') ? FALSE : TRUE;
+			
 			return array(
-							'got_settings' => true,
-							'fb_url' => $fb_url,
-							'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
-							'fb_oauth_token' => $api_settings->fb_oauth_token,
-							'hrurl' => $api_settings->hrurl,
-							'hrtoken' => $api_settings->hrtoken,
-							);
+				'fb_settings' => $fb_settings,
+				'hr_settings' => $hr_settings,
+				'fb_url' => $fb_url,
+				'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
+				'fb_oauth_token' => $api_settings->fb_oauth_token,
+				'hrurl' => $api_settings->hrurl,
+				'hrtoken' => $api_settings->hrtoken,
+				);
+		}else{
+			return array(
+				'fb_settings' => FALSE,
+				'hr_settings' => FALSE,
+				'fb_url' => $fb_url,
+				'fb_oauth_token_secret' => '',
+				'fb_oauth_token' => '',
+				'hrurl' => '',
+				'hrtoken' => '',
+				);
 		}
 	}
 	
@@ -244,8 +255,8 @@ Class Oa_settings extends Controller
 		}
 
 		//set request token and secret in session vars
-		$token_info = array('token' => $auth_data['token'], 'token_secret' => $auth_data['token_secret']);
-		$this->session->set_userdata($token_info);
+		//$token_info = array('token' => $auth_data['token'], 'token_secret' => $auth_data['token_secret']);
+		//$this->session->set_userdata($token_info);
 		//send to freshbooks oauth
 		redirect($auth_data['url']);
 		return;
@@ -258,25 +269,36 @@ Class Oa_settings extends Controller
 		$data['navigation'] = TRUE;
 	}
 	
+	parse_str($_SERVER['QUERY_STRING'] ,$_GET); 
 	$data['title']  = 'Highrise to Freshbooks Sync Tool :: FreshBooks OAuth Settings Success';
 	
 	//load freshbooks oauth library
 	$params = $this->_get_settings();
 	$this->load->library('FreshbooksOauth', $params);
 	//request access token
-	$oauth_settings = array('token' => $this->session->userdata('token'), 'token_secret' => $this->session->userdata('token_secret'));
+	$verifier = $_GET['oauth_verifier'];
+	$token = $_GET['oauth_token'];
+	$oauth_settings = array('verifier' => $verifier, 'token' => $token);
 	//request access token
-	$access_token = $this->freshbooksoauth->obtain_access_token($oauth_settings);
+	try {
+		$access_token = $this->freshbooksoauth->obtain_access_token($oauth_settings);
+	} catch (Exception $e) {
+		$error_data = array($e->getMessage());
+		$data['debug'] = $error_data;
+		$this->load->view('test_view', $data);
+		return;
+	}
+	
 	//if access request successful add to database
 	if ($access_token) {
 		$this->load->model('Oa_settings_model','settings');
-		$oa_settings['fb_oauth_token'] = $access_token['oauth_token'];
-		$oa_settings['fb_oauth_token_secret'] = $access_token['oauth_token_secret'];
+		//$oa_settings['fb_oauth_token'] = $access_token['oauth_token'];
+		//$oa_settings['fb_oauth_token_secret'] = $access_token['oauth_token_secret'];
 		//if already have settings update else add new settings
-		if ($params['got_settings'] == true) {
-			$update_settings = $this->settings->update_oauth_settings($oa_settings);
+		if ($params['fb_settings']) {
+			$update_settings = $this->settings->update_fb_settings($access_token);
 		}else{
-			$insert_settings = $this->settings->insert_oauth_settings($oa_settings);
+			$insert_settings = $this->settings->insert_fb_settings($access_token);
 		}
 	}else{
 		//TODO: no access tokens redirect to freshbooks_oauth
