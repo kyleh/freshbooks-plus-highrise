@@ -37,22 +37,18 @@ Class Settings_model extends Model {
 		parent::Model();
 	}
     
-	function got_settings()
-	{
-		$this->db->where('userid', $this->session->userdata('userid'));
-		$this->db->from('apisettings');
-		$query = $this->db->get();
-		return $query->num_rows(); 
-	}
-    
-	 	/**
+	 /**
 	 * Gets API settings.
 	 *
 	 * @return settings object row if records exit, False on no records
 	 **/
 	function get_settings()
 	{
-		$this->db->where('userid', $this->session->userdata('userid'));
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to access settings. Missing user id. Please login and try again');
+		}
+		$this->db->where('userid', $user_id);
 		$this->db->from('apisettings');
 		$query = $this->db->get();
 		if ($query->num_rows > 0) {
@@ -61,13 +57,47 @@ Class Settings_model extends Model {
 			return FALSE;
 		}
 	}
-
-	function insert_settings()
+	
+	function insert_fb_settings($settings)
 	{
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to insert settings. Missing user id. Please login and try again');
+		}
 		$data = array(
-			'userid' => $this->session->userdata('userid'),
-			'fburl' => $this->input->post('fburl'),
-			'fbtoken' => $this->input->post('fbtoken'),
+			'userid' => $user_id,
+			'fb_oauth_token' => $settings['oauth_token'],
+			'fb_oauth_token_secret' => $settings['oauth_token_secret'],
+			);
+		
+		$this->db->insert('apisettings',$data);
+	}
+	// 
+	function update_fb_settings($settings)
+	{
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to update settings. Missing user id. Please login and try again');
+		}
+		
+		$data = array(
+			'fb_oauth_token' => $settings['oauth_token'],
+			'fb_oauth_token_secret' => $settings['oauth_token_secret']
+			);
+		
+		$this->db->where('userid',$user_id);
+		$this->db->update('apisettings',$data);
+	}
+	
+	function insert_hr_settings()
+	{
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to update settings. Missing user id. Please login and try again');
+		}
+		
+		$data = array(
+			'userid' => $user_id,
 			'hrurl' => $this->input->post('hrurl'),
 			'hrtoken' => $this->input->post('hrtoken')
 		);
@@ -75,17 +105,19 @@ Class Settings_model extends Model {
 		$this->db->insert('apisettings', $data);
 	}
 	
-	function update_settings()
+	function update_hr_settings()
 	{
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to update settings. Missing user id. Please login and try again');
+		}
+		
 		$data = array(
-			'userid' => $this->session->userdata('userid'),
-			'fburl' => $this->input->post('fburl'),
-			'fbtoken' => $this->input->post('fbtoken'),
 			'hrurl' => $this->input->post('hrurl'),
 			'hrtoken' => $this->input->post('hrtoken')
 		);
 
-		$this->db->where('userid', $this->session->userdata('userid'));
+		$this->db->where('userid', $user_id);
 		$this->db->update('apisettings',$data);
 	}	
 

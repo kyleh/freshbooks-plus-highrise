@@ -127,6 +127,22 @@ Class User_model extends Model {
 		return $this->db->insert_id();
 	}
 	
+	public function update_password()
+	{
+		$user_id = $this->session->userdata('userid');
+		if (!$user_id) {
+			throw new Exception('Unable to update settings. Missing user id. Please login and try again');
+		}
+		$new_password = $this->session->userdata('new_pw');
+		$data = array(
+			'password' => $new_password
+			);
+		
+		$this->db->where('id',$user_id);
+		$this->db->update('users',$data);
+		
+	}
+	
 	public function get_all_users()
 	{
 		$query = $this->db->get('users');

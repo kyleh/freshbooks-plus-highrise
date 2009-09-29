@@ -4,15 +4,12 @@ Sync view that displays highrise tags
 Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
 Ver. 1.0 5/3/2009
 -->
-<?php echo $this->load->view('common/header'); ?>
-
-<div id="banner_wrap">
-  <div id="banner">
-    <div class="banner_title">Sync Your Highrise Contacts with FreshBooks</div>
-  </div>
-</div>
-
-<div id="content">
+<?php echo $this->load->view('_common/header'); ?>
+<div class="container">
+	<?php if (isset($debug)): ?>
+		<p class="error"><?php var_dump($debug); ?></p>
+	<?php endif ?>	
+	
 	<?php if (isset($error)): ?>
 		<p class="error"><?php echo $error; ?></p>
 	<?php endif ?>	
@@ -25,24 +22,19 @@ Ver. 1.0 5/3/2009
 				<input type="radio" name="tagfilter" value="nofilter" checked="checked" >
 				<label>Import everybody!</label>
 			  </li>
-			<?php foreach($hr_tags as $tag): ?>
+			<?php foreach($hr_tags as $key => $value): ?>
 			  <li>
-				<input type="radio" name="tagfilter" value="<?php echo $tag->id; ?>">
-				<label>Only contacts tagged <strong><?php echo $tag->name; ?></strong></label>
+				<input type="radio" name="tagfilter" value="<?php echo $value; ?>">
+				<label>Only contacts tagged <strong><?php echo $key; ?></strong><?php if($key == ''){echo ' (not is use)';} ?></label>
 			  </li>
 			<?php endforeach; ?>
 			</ul>
-			<input class="submit" type=submit onclick="" id="submit" value="Sync to Freshbooks">
+			<input class="submit" type=submit onclick="" id="submit" value="Import into FreshBooks">
 		</div><!-- end div tagform -->
 	</form>
-	
-	<div id="sync-right">
-	  	<h2>Tag contacts before using this application</h2>
-			  <p>If you plan on using tags, please log into your Highrise account and tag your contacts appropriately. If you decide not to use tags, then all Highrise contacts will be added during the synchronization process.</p>
-	</div>
 	<?php endif ?>
 	
 </div><!-- end div content -->
 
 <!-- load the footer -->
-<?php echo $this->load->view('common/footer'); ?>
+<?php echo $this->load->view('_common/footer'); ?>

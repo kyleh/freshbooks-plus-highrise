@@ -59,12 +59,14 @@ Class User extends Controller {
 		$data['title'] = 'FreshBooks + Highrise Sync Tool::Login';
 		$data['heading'] = 'FreshBooks + Highrise Login';
 		$data['navigation'] = FALSE;
+		if ($this->session->flashdata('message')) {
+			$data['message'] = $this->session->flashdata('message');
+		}
 		//check to see if user is logged in
 		if (!$loggedin) {
 			$this->load->view('user/login_view',$data);
 		}else{
-			//TODO: check oauth settings
-			redirect('oa_settings/index');
+			redirect('settings/index');
 			return;
 		}
 	}
@@ -84,7 +86,7 @@ Class User extends Controller {
 		$data['title'] = 'FreshBooks + Highrise Sync Tool::Login';
 		//check for .freshbooks.com or https:// or http:// and remove if present
 		$fb_url = $this->input->post('fburl', TRUE);
-		$remove = array('.freshbooks.com', 'http://', 'https://');
+		$remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
 		$fb_url = str_replace($remove, '', $fb_url);
 		//check database for freshbooks subdomain
 		$user = $this->user->get_user_by_url($fb_url);
@@ -95,14 +97,24 @@ Class User extends Controller {
 				//set session data
 				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url);
 				$this->session->set_userdata($userinfo); 
+				
 				//check for fb settings
-				$fb_settings = $this->_verify_fb_settings();
-				if ($fb_settings) {
-					//check highrise settings
-					$hr_settings = $this->_verify_highrise_settings();
-					//redirect to sync
-					redirect('sync/index');
+				$settings = $this->_get_settings();
+				if ($settings['fb_settings']) {
+					//validate fb settings
+					$validate = $this->_validate_fb_settings($settings);
+				}else{
+					redirect('settings/index');
 				}
+				//check hr settings
+				if ($settings['hr_settings']) {
+					//validate fb settings
+					$validate = $this->_validate_hr_settings($settings);
+				}else{
+					redirect('settings/index');
+				}
+				//if settings validate redirect to sync
+				redirect('sync/index');
 			} else {
 				$data['error'] = "Invalid Password - Please Try Again.";
 				$data['fb_url'] = $fb_url;
@@ -110,7 +122,6 @@ Class User extends Controller {
 			}
 		} else {
 			$data['error'] = "FreshBooks url is not currently registered - Please click the - Create an account - link on the right to register.";
-			
 			$this->load->view('user/login_view', $data);
 		}
 	}
@@ -150,8 +161,10 @@ Class User extends Controller {
 		
 		//check for post data
 		if ($this->input->post('reset_password')) {
-			$reset_password = $this->_reset_password();
+			$reset_password = $this->_create_new_password();
 			return;
+		}elseif($this->session->flashdata('error')){
+			$data['error'] = $this->session->flashdata('error');
 		}
 		//display registration view
 		$this->load->view('user/reset_password_view',$data);
@@ -170,45 +183,7 @@ Class User extends Controller {
 	}
 	
 	/**
-	 * Private _verify_fb_settings() method of User Controller
-	 *
-	 * Checks for FreshBooks oauth settings in database.  If present then it tests that the
-	 * settings are valid by using the FreshBooks API.
-	 *
-	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
-	 *
-	*/
-	private function _verify_fb_settings()
-	{
-		$this->load->model('Oa_settings_model','settings');
-		$settings = $this->settings->get_settings();
-				
-		if ($settings == false || $settings->fb_oauth_token_secret == ''){
-			redirect('oa_settings/freshbooks_oauth');
-			return;
-		} else {
-			$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
-			$settings = array(
-				'fb_url' 				=> $fb_url,
-				'fb_oauth_token_secret' => $settings->fb_oauth_token_secret,
-				'fb_oauth_token' 		=> $settings->fb_oauth_token,
-				'hrurl' 				=> $settings->hrurl,
-				'hrtoken' 				=> $settings->hrtoken,
-				);
-			
-			$this->load->library('FreshbooksOauth', $settings);
-			try {
-				$fb_test = $this->freshbooksoauth->test_fb_settings();
-				return true;
-			} catch (Exception $e) {
-				redirect('oa_settings/freshbooks_oauth');
-				return;
-			}
-		}
-	}
-	
-	/**
-	 * Private _verify_hr_settings() method of User Controller
+	 * Private _validate_hr_settings() method of User Controller
 	 *
 	 * Checks for Highrise settings in database.  If present then it tests that the
 	 * settings are valid by using the Highrise API.
@@ -216,9 +191,49 @@ Class User extends Controller {
 	 * @return bool true  returns true on success and redirects to Highrise settings page on false
 	 *
 	*/
-	private function _verify_hr_settings()
+	private function _validate_hr_settings($settings)
 	{
-		//
+		$this->load->library('Highrise', $settings);
+		try {
+			$validate_hr_settings = $this->highrise->validate_hr_settings();
+		} catch (Exception $e) {
+			//if hr settings fail to validate return with message
+			$data['title']   = 'Highrise to Freshbooks Sync Tool :: API Settings';
+			$data['submitname'] = 'Update API Settings';
+			$data['error'] = $e->getMessage();
+			$this->load->view('settings/settings_view', $data); 
+			return;
+		}
+	}
+	
+	/**
+	 * Private _validate_fb_settings() method of User Controller
+	 *
+	 * Checks for FreshBooks oauth settings in database.  If present then it tests that the
+	 * settings are valid by using the FreshBooks API.
+	 *
+	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
+	 *
+	*/	
+	private function _validate_fb_settings($settings)
+	{
+		$this->load->library('FreshbooksOauth', $settings);
+		try {
+			$validate_fb_settings = $this->freshbooksoauth->validate_fb_settings();
+		} catch (Exception $e) {
+			//if settings no longer valid and freshbooks is not down for maintenance then start oauth process 
+			$error = $e->getMessage();
+			//if down for maintenance redirect to oauth error page with message
+			if ($error == 503) {
+				$data['error'] = 'FreshBooks is currently down for maintenance, please try again later.';
+				$data['title'] = 'Highrise to FreshBooks Sync :: Oauth Error';
+				$this->load->view('settings/oauth_error_view', $data);
+				return;
+			}
+			//start the oauth process
+			redirect('settings/index');
+			return;
+		}
 	}
 	
 	/**
@@ -247,7 +262,7 @@ Class User extends Controller {
 		}else{
 			//check for .freshbooks.com or https:// or http:// and remove if present
 			$fb_url = $this->input->post('fburl');
-			$remove = array('.freshbooks.com', 'http://', 'https://');
+			$remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
 			$fb_url = str_replace($remove, '', $fb_url);
 			//insert user
 			$insert_user_id = $this->user->insert_user($fb_url);
@@ -261,11 +276,64 @@ Class User extends Controller {
 			//set up session and set session vars
 			$userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url);
 			$this->session->set_userdata($userinfo); 
-			redirect('oa_settings/freshbooks_oauth');
+			redirect('settings/index');
 			return;
 		}
 	}
-
+	
+	private function _create_new_password()
+	{
+		//load form validation helper
+		$this->load->library('form_validation');
+		$this->form_validation->set_error_delimiters('<span class="login_error">', '</span>');
+		
+		$this->form_validation->set_rules('fburl', 'FreshBooks Url', 'trim|required');
+		$this->form_validation->set_rules('password', 'Password', 'trim|required|matches[confpassword]|sha1');
+		$this->form_validation->set_rules('confpassword', 'Confirm Password', 'trim|required');
+		
+		if ($this->form_validation->run() == FALSE){
+			$data['title'] = 'FreshBooks + Highrise Sync Tool::Reset Password';
+			$this->load->view('user/reset_password_view', $data);
+		}else{
+			
+			//check for .freshbooks.com or https:// or http:// and remove if present
+			$fb_url = $this->input->post('fburl', TRUE);
+			$remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
+			$fb_url = str_replace($remove, '', $fb_url);
+			$user = $this->user->get_user_by_url($fb_url);
+			if ($user) {
+				//add new password data to session
+				$resetdata = array('userid' => $user->id, 'reset_password' => 'true', 'subdomain' => $user->fb_url, 'new_pw' => $this->input->post('password'));
+				$this->session->set_userdata($resetdata);
+				//redirect to oauth process
+				redirect('settings/freshbooks_oauth'); 
+			}
+			
+			
+			//check for .freshbooks.com or https:// or http:// and remove if present
+			// $fb_url = $this->input->post('fburl');
+			// $remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
+			// $fb_url = str_replace($remove, '', $fb_url);
+			// //insert user
+			// $insert_user_id = $this->user->insert_user($fb_url);
+			// //if insert fails return to registration page with error
+			// if ($insert_user_id == FALSE) {
+			// 	$data['error'] = 'Unable to add User data to database.  Please try again.';
+			// 	$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
+			// 	$this->load->view('user/register_view', $data);
+			// 	return;
+			// }
+			// //set up session and set session vars
+			// $userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url);
+			// $this->session->set_userdata($userinfo); 
+			// redirect('settings/index');
+			// return;
+		}
+		
+		
+	}
+	
+	
 	/**
 	 * Callback method fb_url_check() method of User Controller
 	 *
@@ -288,46 +356,42 @@ Class User extends Controller {
 		}
 	}
 	
-	//register new users
-	// function register()
-	// {
-	// 	//check to see if user is logged in
-	// 	$loggedin = $this->session->userdata('loggedin');
-	// 	if ($loggedin) {
-	// 		redirect('oa_settings/index');
-	// 	}
-	// 	
-	// 	$data['title'] = 'Highrise to Freshbooks Sync Tool::Register for a New Account';
-	// 	$data['heading'] = 'Sign Up For A New Account';
-	// 	$data['navigation'] = FALSE;
-	// 	
-	// 	//load form validation helper
-	// 	$this->load->library('form_validation');
-	// 	$this->form_validation->set_error_delimiters('<p class="error">', '</p>');
-	// 	
-	// 	$this->form_validation->set_rules('name', 'Full Name', 'required');
-	// 	$this->form_validation->set_rules('email', 'Email Address', 'required|valid_email|callback_email_check');
-	// 	$this->form_validation->set_rules('password', 'Password', 'required|matches[passconf]');
-	// 	$this->form_validation->set_rules('passconf', 'Password Conformation', 'required');
-	// 
-	// 	if ($this->form_validation->run() == FALSE){
-	// 		$this->load->view('user/register_view', $data);
-	// 	}else{
-	// 		$this->load->model('User_model', 'user');
-	// 		//insert user
-	// 		$this->user->insert_user();
-	// 		$user = $this->user->getuser($this->input->post('email'));
-	// 		//set up session ans set session vars
-	// 		$userinfo = array('userid' => $user[0]->id, 'loggedin' => TRUE, 'username' => $user[0]->email);
-	// 		$this->session->set_userdata($userinfo); 
-	// 		redirect('oa_settings/index');
-	// 	}
-	// }
-
-
-
-
-
-
+	/**
+	 * Gets API settings from database.
+	 *
+	 * @return array Array of API settings on success, redirect to settings page on fail
+	 **/
+	private function _get_settings()
+	{
+		$this->load->model('Oa_settings_model','settings');
+		$api_settings = $this->settings->get_settings();
+		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
+		
+		if ($api_settings) {
+			
+			$fb_settings = ($api_settings->fb_oauth_token_secret == '' || $api_settings->fb_oauth_token == '') ? FALSE : TRUE;
+			$hr_settings = ($api_settings->hrurl == '' || $api_settings->hrtoken == '') ? FALSE : TRUE;
+			
+			return array(
+				'fb_settings' => $fb_settings,
+				'hr_settings' => $hr_settings,
+				'fb_url' => $fb_url,
+				'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
+				'fb_oauth_token' => $api_settings->fb_oauth_token,
+				'hrurl' => $api_settings->hrurl,
+				'hrtoken' => $api_settings->hrtoken,
+				);
+		}else{
+			return array(
+				'fb_settings' => FALSE,
+				'hr_settings' => FALSE,
+				'fb_url' => $fb_url,
+				'fb_oauth_token_secret' => '',
+				'fb_oauth_token' => '',
+				'hrurl' => '',
+				'hrtoken' => '',
+				);
+		}
+	}
 }
 ?>

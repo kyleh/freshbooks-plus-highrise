@@ -15,13 +15,15 @@ All rights reserved.
 <script type="text/javascript" charset="utf-8">
 	<!--
 	function submitonce(theform) {
-		if( document.getElementById ) {
-			input = document.getElementById('submit');
-			p = document.createElement( 'p' );
-			p.innerHTML = 'Synchronizing...';
-			input.parentNode.replaceChild( p, input );
-			return true;
-		}
+			if( document.getElementById ) {
+				input = document.getElementById('submit');
+				p = document.createElement( 'p' );
+				p.setAttribute("class", "submit");
+							p.setAttribute("className", "submit");
+				p.innerHTML = 'Importing...';
+				input.parentNode.replaceChild( p, input );
+				return true;
+			}
 	}
 	-->
 </script>
@@ -32,14 +34,19 @@ All rights reserved.
 </head>
 <body class="integrator">
 <div id="header_wrap">
-  <div id="header">
-  	<img src="<?php echo(base_url()); ?>public/stylesheets/images/freshbooks.highrise.gif" class="logo" height="80" width="430" alt="FreshBooks + Highrise" />
-<?php if ($navigation){ ?>
-	<ul>
-		<li><? echo anchor('settings/index', 'API Settings'); ?></li> | 
-		<li><? echo anchor('sync/index', 'Sync Contacts'); ?></li> | 
-		<li><? echo anchor('user/logout', 'Logout'); ?></li>
-	</ul>
-<?php } ?> 
-  </div>
+	<div class="addon-header">
+		<div class="container">
+			<div class="account">
+				<?php if (isset($navigation)): ?>
+				<ul>
+					<li><?php echo anchor('settings/index', 'API Settings'); ?></li>
+					<li><?php echo anchor('sync/index', 'Import Contacts'); ?></li> 
+					<li><?php echo anchor('user/logout', 'Log Out'); ?></li>
+				</ul>
+				<?php endif ?>
+			</div>
+			<span class="addon-name">FreshBooks + Highrise</span>
+		</div>
+	</div>
+  	
 </div>
