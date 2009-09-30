@@ -28,7 +28,10 @@ Ver. 1.0 5/3/2009
 		<p>Selected Highrise clients are already in sync with Freshbooks.</p>
 	<?php endif ?>
 	<?php if (isset($fburl)): ?>
-		<div style="margin-top:30px;"><a href="<?php echo $fburl; ?>" class="submit" target="_blank">Go to FreshBooks</a></div>
+		<div style="margin-top:30px;">
+ 		<span style="margin-top:30px;"><a href="<?php echo $fburl; ?>" class="submit" target="_blank">Go to FreshBooks</a></span> or 
+		<span style="margin:30px 20px 0 0;"><?php echo anchor('sync/index', 'Import contacts again', array('class' => 'submit')); ?></span>
+		</div><!-- end div name -->
 	<?php endif ?>
 	
 
