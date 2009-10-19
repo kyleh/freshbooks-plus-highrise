@@ -25,10 +25,8 @@ Ver. 1.0 5/3/2009
 							<div>
 								
 								<?php echo form_open('user/verify')."\n"; ?>
-
-								<label for="subdomain" class="login-label">FreshBooks URL:</label> 
-								<input type="text" name="fburl" value="<?php echo isset($fb_url) ? $fb_url:'' ?>" />
-								<!-- <br />(xxxxx.freshbooks.com) -->
+								<p><label class="login-label" for="subdomain">FreshBooks URL:</label> 
+								<input type="text" value="" name="fburl" value="<?php echo isset($fb_url) ? $fb_url:'' ?>"/><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
 								<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
 								<button value="submit"><span><span>Login</span></span></button>
 								</form>

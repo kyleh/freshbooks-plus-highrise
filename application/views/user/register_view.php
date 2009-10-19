@@ -22,8 +22,8 @@ Ver. 1.0
 						<div class="login-form">
 							<div>
 								<?php echo form_open('user/register')."\n"; ?>
-									<label for="subdomain" class="login-label">FreshBooks URL:</label> 
-									<input type="text" name="fburl" value="" />
+									<p><label class="login-label" for="subdomain">FreshBooks URL:</label> 
+									<input type="text" value="" name="fburl"/><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
 									
 									<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
 									<br />

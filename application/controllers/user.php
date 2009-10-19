@@ -366,6 +366,7 @@ Class User extends Controller {
 		$this->load->model('Oa_settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
+		$hr_url = 'https://'.$api_settings->hrurl.'.highrisehq.com';
 		
 		if ($api_settings) {
 			
@@ -378,7 +379,7 @@ Class User extends Controller {
 				'fb_url' => $fb_url,
 				'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
 				'fb_oauth_token' => $api_settings->fb_oauth_token,
-				'hrurl' => $api_settings->hrurl,
+				'hrurl' => $hr_url,
 				'hrtoken' => $api_settings->hrtoken,
 				);
 		}else{

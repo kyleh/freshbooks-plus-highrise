@@ -22,13 +22,14 @@ Ver. 1.0
 						<div class="login-form">
 							<div>
 								<?php echo form_open('user/reset_password')."\n"; ?>
-									<label for="subdomain" class="login-label">FreshBooks URL:</label> 
-									<input type="text" name="fburl" value="<?php echo set_value('fburl'); ?>" />
+								<p><label class="login-label" for="subdomain">FreshBooks URL:</label> 
+								<input type="text" value="" name="fburl" value="<?php echo set_value('fburl'); ?>"/><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
 									<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
 									<br />
 									<label for="confpassword" class="login-label">Confirm Password:</label> <input type="password" name="confpassword" />
 									<input type="hidden" name="reset_password" value="true">
-									<button value="submit"><span><span>Reset Password</span></span></button>
+									<p><button value="submit"><span><span>Verify account</span></span></button></p>
+									<p>To reset your password, you must first verify you own your FreshBooks account.</p>
 								</form>
 							</div>
 							<div class="login-form-footer"></div>

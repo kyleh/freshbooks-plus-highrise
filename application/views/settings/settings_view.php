@@ -1,7 +1,7 @@
 <?php echo $this->load->view('_common/header'); ?>
 <div class="container">
 	<h3>Connect to your Highrise Account</h3>
-	<p>Click <strong>My Info</strong> then <strong>Reveal authentication token</strong> and copy and paste the token into the input field below. <strong>Your Highrise URL</strong> is simple, just get the URL that you log into and paste it here. For example, http://yourname.highrisehq.com. </p>
+	<p>Click <strong>My Info</strong> then <strong>Reveal authentication token</strong> and copy and paste the token into the input field below. <strong>Your Highrise URL</strong> is simple, just get your custom name from your highrise domain that you use to log into your Highrise account and paste it here. For example, https://<strong>just-this-part</strong>.highrisehq.com. </p>
 	
 
 	<?php if(isset($error)): ?>
@@ -16,7 +16,7 @@
 	<div id="apiform">
 		<div class="api-input">
           <label>Highrise URL</label>
-			<input class="input" type="text" name="hrurl" value="<?php echo isset($hrurl) ? $hrurl : set_value('hrurl'); ?>" size="50" />
+			<input class="input" type="text" name="hrurl" value="<?php echo isset($hrurl) ? $hrurl : set_value('hrurl'); ?>" size="50" /><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.highrisehq.com</p>
         </div>
 		<div class="api-input">
           <label>Highrise Token</label>

@@ -8,7 +8,7 @@ All rights reserved.
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <title><?php echo isset($title) ? $title : ''; ?></title>
 <link rel="stylesheet" type="text/css" href="<?php echo(base_url()); ?>public/stylesheets/default.css" media="screen" />
 
@@ -36,15 +36,15 @@ All rights reserved.
 <div id="header_wrap">
 	<div class="addon-header">
 		<div class="container">
+			<?php if (isset($navigation)): ?>
 			<div class="account">
-				<?php if (isset($navigation)): ?>
 				<ul>
 					<li><?php echo anchor('settings/index', 'API Settings'); ?></li>
 					<li><?php echo anchor('sync/index', 'Import Contacts'); ?></li> 
 					<li><?php echo anchor('user/logout', 'Log Out'); ?></li>
 				</ul>
-				<?php endif ?>
 			</div>
+			<?php endif ?>
 			<span class="addon-name">FreshBooks + Highrise</span>
 		</div>
 	</div>

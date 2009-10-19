@@ -111,9 +111,11 @@ Class Settings_model extends Model {
 		if (!$user_id) {
 			throw new Exception('Unable to update settings. Missing user id. Please login and try again');
 		}
+		$raw_domain = $this->input->post('hrurl');
+		$hr_domain = preg_replace('%http[a-z]*://|\.[a-zA-Z0-9]*\.com%', '', $raw_domain);
 		
 		$data = array(
-			'hrurl' => $this->input->post('hrurl'),
+			'hrurl' => $hr_domain,
 			'hrtoken' => $this->input->post('hrtoken')
 		);
 

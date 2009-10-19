@@ -20,7 +20,8 @@ class FreshbooksOauth{
 	private $authorize_url = '';
 	private $access_url = '';
 
-	public function __construct($settings){
+	public function __construct($settings)
+	{
 		$this->relm_url = $settings['fb_url'].'/api/2.1/xml-in';
 		$this->request_url = $settings['fb_url'].'/oauth/oauth_request.php';
 		$this->authorize_url = $settings['fb_url'].'/oauth/oauth_authorize.php';
@@ -99,7 +100,7 @@ class FreshbooksOauth{
 	{
 		$method = 'POST';
 		$url = $this->relm_url;
-
+		
 		//signature for plaintext method
 		$signature = urlencode($this->oauth_consumer_secret.'&'.$this->oauth_token_secret);
 		$timestamp = $this->_get_timestamp();
@@ -202,8 +203,7 @@ class FreshbooksOauth{
 			return $oauth_request_results;
 		}
 	}
-	
-	
+		
 	private function _get_nonce()
 	{
 		return uniqid('').time()*13;
@@ -248,7 +248,7 @@ class FreshbooksOauth{
 			);
 		
 		$post_fields = http_build_query($params);
-		
+				
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -259,6 +259,8 @@ class FreshbooksOauth{
 		$result = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		curl_close($ch);
+		
+		throw new Exception('URL: '.$url.' Post Fields: '.$post_fields.' Results: '.$result);//TODO: Debug purposes only - REMOVE 
 		
 		$http_code = $info['http_code'];
 		if ($info['http_code'] != 200) {
