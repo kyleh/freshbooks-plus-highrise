@@ -15,8 +15,8 @@
 	<?php echo form_open('settings/highrise_settings')."\n"; ?>
 	<div id="apiform">
 		<div class="api-input">
-          <label>Highrise URL</label>
-			<input class="input" type="text" name="hrurl" value="<?php echo isset($hrurl) ? $hrurl : set_value('hrurl'); ?>" size="50" /><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.highrisehq.com</p>
+          <label>Highrise URL (<strong>xxxxx</strong>.highrisehq.com)</label>
+			<input class="input" type="text" name="hrurl" value="<?php echo isset($hrurl) ? $hrurl : set_value('hrurl'); ?>" size="50" />
         </div>
 		<div class="api-input">
           <label>Highrise Token</label>

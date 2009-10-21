@@ -213,8 +213,7 @@ class FreshbooksOauth{
 	{
 		return time();
 	}
-	
-	//TODO: May not need with new implementation	
+
 	private function _create_oauth_header($params)
 	{
 		$h   = array();
@@ -259,8 +258,6 @@ class FreshbooksOauth{
 		$result = curl_exec($ch);
 		$info = curl_getinfo($ch);
 		curl_close($ch);
-		
-		throw new Exception('URL: '.$url.' Post Fields: '.$post_fields.' Results: '.$result);//TODO: Debug purposes only - REMOVE 
 		
 		$http_code = $info['http_code'];
 		if ($info['http_code'] != 200) {

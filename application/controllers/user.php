@@ -95,7 +95,7 @@ Class User extends Controller {
 			//set session vars
 			if ($user->password == $password) {
 				//set session data
-				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url);
+				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url, 'hrssl' => 'no');
 				$this->session->set_userdata($userinfo); 
 				
 				//check for fb settings
@@ -103,6 +103,7 @@ Class User extends Controller {
 				if ($settings['fb_settings']) {
 					//validate fb settings
 					$validate = $this->_validate_fb_settings($settings);
+					
 				}else{
 					redirect('settings/index');
 				}
@@ -194,11 +195,22 @@ Class User extends Controller {
 	private function _validate_hr_settings($settings)
 	{
 		$this->load->library('Highrise', $settings);
+		// return 'TEST ME';
 		try {
 			$validate_hr_settings = $this->highrise->validate_hr_settings();
+			if ($validate_hr_settings == 'switchssl') {
+				//Flip the ssl switch
+				$hr_ssl_status = ($this->session->userdata('hrssl') == 'yes') ? 'no' : 'yes';
+				$this->session->unset_userdata('hrssl');
+				$this->session->set_userdata('hrssl', $hr_ssl_status);
+			}
+			return 'valid';
 		} catch (Exception $e) {
 			//if hr settings fail to validate return with message
 			$data['title']   = 'Highrise to Freshbooks Sync Tool :: API Settings';
+			$raw_domain = $settings['hrurl'];
+			$data['hrurl'] = preg_replace('%http[a-z]*://|\.[a-zA-Z0-9]*\.com%', '', $raw_domain);
+			$data['hrtoken'] = $settings['hrtoken'];
 			$data['submitname'] = 'Update API Settings';
 			$data['error'] = $e->getMessage();
 			$this->load->view('settings/settings_view', $data); 
@@ -220,6 +232,7 @@ Class User extends Controller {
 		$this->load->library('FreshbooksOauth', $settings);
 		try {
 			$validate_fb_settings = $this->freshbooksoauth->validate_fb_settings();
+			return TRUE;
 		} catch (Exception $e) {
 			//if settings no longer valid and freshbooks is not down for maintenance then start oauth process 
 			$error = $e->getMessage();
@@ -274,7 +287,7 @@ Class User extends Controller {
 				return;
 			}
 			//set up session and set session vars
-			$userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url);
+			$userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url, 'hrssl' => 'yes');
 			$this->session->set_userdata($userinfo); 
 			redirect('settings/index');
 			return;
@@ -295,7 +308,6 @@ Class User extends Controller {
 			$data['title'] = 'FreshBooks + Highrise Sync Tool::Reset Password';
 			$this->load->view('user/reset_password_view', $data);
 		}else{
-			
 			//check for .freshbooks.com or https:// or http:// and remove if present
 			$fb_url = $this->input->post('fburl', TRUE);
 			$remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
@@ -308,29 +320,7 @@ Class User extends Controller {
 				//redirect to oauth process
 				redirect('settings/freshbooks_oauth'); 
 			}
-			
-			
-			//check for .freshbooks.com or https:// or http:// and remove if present
-			// $fb_url = $this->input->post('fburl');
-			// $remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
-			// $fb_url = str_replace($remove, '', $fb_url);
-			// //insert user
-			// $insert_user_id = $this->user->insert_user($fb_url);
-			// //if insert fails return to registration page with error
-			// if ($insert_user_id == FALSE) {
-			// 	$data['error'] = 'Unable to add User data to database.  Please try again.';
-			// 	$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
-			// 	$this->load->view('user/register_view', $data);
-			// 	return;
-			// }
-			// //set up session and set session vars
-			// $userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url);
-			// $this->session->set_userdata($userinfo); 
-			// redirect('settings/index');
-			// return;
 		}
-		
-		
 	}
 	
 	
@@ -366,12 +356,16 @@ Class User extends Controller {
 		$this->load->model('Oa_settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
-		$hr_url = 'https://'.$api_settings->hrurl.'.highrisehq.com';
 		
 		if ($api_settings) {
-			
 			$fb_settings = ($api_settings->fb_oauth_token_secret == '' || $api_settings->fb_oauth_token == '') ? FALSE : TRUE;
 			$hr_settings = ($api_settings->hrurl == '' || $api_settings->hrtoken == '') ? FALSE : TRUE;
+			if ($hr_settings) {
+				$hr_url_prefix = ($this->session->userdata('hrssl') == 'yes') ? 'https://' : 'http://';
+				$hr_url = $hr_url_prefix.$api_settings->hrurl.'.highrisehq.com';
+			}else{
+				$hr_url = '';
+			}
 			
 			return array(
 				'fb_settings' => $fb_settings,

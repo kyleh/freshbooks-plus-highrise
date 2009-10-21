@@ -30,9 +30,9 @@ class Highrise{
 	
 	public function validate_hr_settings()
 	{
-		$url = $this->hr_url.'/groups.xml';
+		$url = $this->hr_url.'/users.xml';
 		$request = $this->_highrise_api_request($url);
-		return $request ? TRUE : FALSE;
+		return $request;
 	}
 	
 	public function get_hr_tags()
@@ -72,16 +72,20 @@ class Highrise{
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,20);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		//$info = curl_getinfo($ch);
+		$info = curl_getinfo($ch);
 		$result = curl_exec($ch);
 		curl_close($ch);
 		
+		if (preg_match("/redirected/", $result) && preg_match("/highrisehq.com\/login/", $result)) {
+			throw new Exception('Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.');
+		}elseif(preg_match("/redirected/", $result) && preg_match("/highrisehq.com\/users.xml/", $result)){
+			return 'switchssl';
+		}
+		
 		if($result == FALSE){//unable to establish connection returns bool false
 			throw new Exception('Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.');
-			//return 'Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.';
 		}elseif(preg_match("/denied/", $result)){
 			throw new Exception('Error: <strong>'.$result.'</strong> Please check your Highrise API Token setting and try again.');
-			//return "Error: <strong>".$result."</strong> Please check your Highrise API Token setting and try again.";
 		}elseif(preg_match("/<?xml/", $result)){
 			return simplexml_load_string($result);
 		}else{

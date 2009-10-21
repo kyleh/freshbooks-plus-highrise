@@ -24,8 +24,13 @@ Ver. 1.0 5/3/2009
 			  </li>
 			<?php foreach($hr_tags as $key => $value): ?>
 			  <li>
-				<input type="radio" name="tagfilter" value="<?php echo $value; ?>">
-				<label>Only contacts tagged <strong><?php echo $key; ?></strong><?php if($key == ''){echo ' (not is use)';} ?></label>
+				<?php if ($value == ''): ?>
+					<input disabled type="radio" name="tagfilter" value="<?php echo $value; ?>">
+					<label>Only contacts tagged <strong><?php echo $key; ?></strong><?php if($value == ''){echo ' (tag not is use by Highrise)';} ?></label>
+				<?php else: ?>
+					<input type="radio" name="tagfilter" value="<?php echo $value; ?>">
+					<label>Only contacts tagged <strong><?php echo $key; ?></strong><?php if($value == ''){echo ' (tag not is use by Highrise)';} ?></label>
+				<?php endif ?>
 			  </li>
 			<?php endforeach; ?>
 			</ul>

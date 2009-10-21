@@ -160,7 +160,9 @@ Class Sync extends Controller
 			}
 		}else{
 			//return to sync page with message - no contacts with selected tag
-			
+			$data['error'] = 'No contacts with selected tag in Highrise.';
+			$this->load->view('sync/sync_results_view', $data);
+			return;
 		}
 		
 		//get FB client data and process into multidim assoc array with email as key
@@ -231,12 +233,17 @@ Class Sync extends Controller
 		$this->load->model('Oa_settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
-		$hr_url = 'https://'.$api_settings->hrurl.'.highrisehq.com';
-		
+				
 		if ($api_settings) {
 			
 			$fb_settings = ($api_settings->fb_oauth_token_secret == '' || $api_settings->fb_oauth_token == '') ? FALSE : TRUE;
 			$hr_settings = ($api_settings->hrurl == '' || $api_settings->hrtoken == '') ? FALSE : TRUE;
+			if ($hr_settings) {
+				$hr_url_prefix = ($this->session->userdata('hrssl') == 'yes') ? 'https://' : 'http://';
+				$hr_url = $hr_url_prefix.$api_settings->hrurl.'.highrisehq.com';
+			}else{
+				$hr_url = '';
+			}
 			
 			return array(
 				'fb_settings' => $fb_settings,
@@ -284,11 +291,18 @@ Class Sync extends Controller
 		$this->load->library('Highrise', $settings);
 		try {
 			$validate_hr_settings = $this->highrise->validate_hr_settings();
+			if ($validate_hr_settings == 'switchssl') {
+				//Flip the ssl switch
+				$hr_ssl_status = ($this->session->userdata('hrssl') == 'yes') ? 'yes' : 'no';
+				$this->session->unset_userdata('hrssl');
+				$this->session->set_userdata('hrssl', $hr_ssl_status);
+			}
 			return 'valid';
 		} catch (Exception $e) {
 			//if hr settings fail to validate return with message
 			$data['title']   = 'Highrise to Freshbooks Sync Tool :: API Settings';
-			$data['hrurl'] = $settings['hrurl'];
+			$raw_domain = $settings['hrurl'];
+			$data['hrurl'] = preg_replace('%http[a-z]*://|\.[a-zA-Z0-9]*\.com%', '', $raw_domain);
 			$data['hrtoken'] = $settings['hrtoken'];
 			$data['submitname'] = 'Update API Settings';
 			$data['error'] = $e->getMessage();
