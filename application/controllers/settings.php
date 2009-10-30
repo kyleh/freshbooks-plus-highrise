@@ -1,4 +1,33 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
+/**
+*Settings Controller
+*Controller to add/update FreshBooks settings and Highrise settings
+*Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
+*Ver. 1.0 October 2009
+*
+*Copyright (c) 2009, Kyle Hendricks - Mend Technologies
+*All rights reserved.
+*Redistribution and use in source and binary forms, with or without
+*modification, are permitted provided that the following conditions are met:
+** Redistributions of source code must retain the above copyright notice,
+*this list of conditions and the following disclaimer.
+** Redistributions in binary form must reproduce the above copyright
+*notice, this list of conditions and the following disclaimer in the
+*documentation and/or other materials provided with the distribution.
+** Neither the name of the <ORGANIZATION> nor the names of its
+*contributors may be used to endorse or promote products derived from this
+*software without specific prior written permission.
+*THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+*ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+*WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+*DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+*ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+*(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+*LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+*ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+*(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+*SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**/
 Class Settings extends Controller
 {
 	
@@ -60,7 +89,18 @@ Class Settings extends Controller
 		return;
 	}
 	
-	function highrise_settings()
+	/**
+	 * Public highrise_settings() method of Settings Controller
+	 *
+	 * Validates highrise settings input via Post.
+	 * Adds Highrise settings to database
+	 * Validates Highrise settings
+	 *
+	 * @param  array|string  $_POST['hrurl]  Highrise subdomain
+	 * @param  array|string  $_POST['hrtoken']  Highrise token
+	 *
+	*/
+	public function highrise_settings()
 	{
 		//check for login
 		if ($this->_check_login())
@@ -95,6 +135,14 @@ Class Settings extends Controller
 		}
 	}
 
+	/**
+	 * Public freshbooks_oauth() method of Settings Controller
+	 *
+	 * Creates FreshBooks OAuth authorization url
+	 * Redirects to FreshBooks authorization url
+	 *
+	 *
+	*/
 	public function freshbooks_oauth()
 	{
 		//get request token - set url for authorize
@@ -106,12 +154,26 @@ Class Settings extends Controller
 			redirect($auth_data['url']);
 			return;
 		} catch (Exception $e) {
-			$this->session->set_flashdata('error', $e->getMessage());
-			redirect('settings/auth_error');
-			return;
+			if ($e->getMessage() == '302') {
+				$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
+				$data['error'] = 'Could not connect to FreshBooks with the given url.  Please check your FreshBooks URL and try again.';
+				$this->load->view('user/register_view', $data);
+			}else{
+				$this->session->set_flashdata('error', $e->getMessage());
+				redirect('settings/auth_error');
+				return;
+			}
 		}
 	}
 
+	/**
+	 * Public request_token_ready() method of Settings Controller
+	 *
+	 * Extracts verifier and token from FreshBooks Oauth
+	 * Requests access tokens from FreshBooks OAuth
+	 * Inserts OAuth credentials on register Updates on password reset
+	 * Inserts user info on register
+	*/
 	public function request_token_ready()
 	{
 		parse_str($_SERVER['QUERY_STRING'] ,$_GET); 
@@ -130,7 +192,23 @@ Class Settings extends Controller
 			if ($settings['fb_settings'] || $settings['hr_settings']) {
 				$update_settings = $this->settings->update_fb_settings($access_token);
 			}else{
-				$insert_settings = $this->settings->insert_fb_settings($access_token);
+				//insert new user and settings
+				$this->load->model('User_model', 'user');
+				try {
+					$insert_user_id = $this->user->insert_user();
+					//reset session vars
+					$remove = array('password' => '', 'register' => '');
+					$this->session->unset_userdata($remove);
+					$userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'hrssl' => 'yes');
+					$this->session->set_userdata($userinfo); 
+					//insert settings
+					$insert_settings = $this->settings->insert_fb_settings($access_token);
+				} catch (Exception $e) {
+					$data['error'] = $e->getMessage();
+					$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
+					$this->load->view('user/register_view', $data);
+					return;
+				}
 			}
 		} catch (Exception $e) {
 			$this->session->set_flashdata('error', $e->getMessage());
@@ -183,6 +261,11 @@ Class Settings extends Controller
 		return;
 	}
 
+	/**
+	 * Public auth_eror() method of Settings Controller
+	 *
+	 * Sets OAuth error and loads error view with message
+	*/
 	public function auth_error()
 	{
 		$data['title'] = 'Highrise to FreshBooks Sync :: Oauth Error';
@@ -217,8 +300,14 @@ Class Settings extends Controller
 	 **/
 	private function _get_settings()
 	{
-		$this->load->model('Oa_settings_model','settings');
-		$api_settings = $this->settings->get_settings();
+		//if new registration don't attempt to get settings
+		if ($this->session->userdata('register')) {
+			$api_settings = FALSE;
+		}else{
+			$this->load->model('Settings_model','settings');
+			$api_settings = $this->settings->get_settings();
+		}
+		
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
 		
 		if ($api_settings) {
@@ -253,6 +342,15 @@ Class Settings extends Controller
 		}
 	}
 	
+	/**
+	 * Private _validate_hr_settings() method of Settings Controller
+	 *
+	 * Checks for Highrise settings in database.  If present then it tests that the
+	 * settings are valid by using the Highrise API.
+	 *
+	 * @return bool true  returns true on success and redirects to Highrise settings page on false
+	 *
+	*/
 	private function _validate_hr_settings($settings)
 	{
 		$this->load->library('Highrise', $settings);
@@ -279,6 +377,15 @@ Class Settings extends Controller
 		}
 	}
 	
+	/**
+	 * Private _validate_fb_settings() method of Settings Controller
+	 *
+	 * Checks for FreshBooks oauth settings in database.  If present then it tests that the
+	 * settings are valid by using the FreshBooks API.
+	 *
+	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
+	 *
+	*/	
 	private function _validate_fb_settings($settings)
 	{
 		$this->load->library('FreshbooksOauth', $settings);

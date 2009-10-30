@@ -3,7 +3,7 @@
 *Sync Controller
 *Controller to display sync view with highrise tags and handle sync requests
 *Created by Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
-*Ver. 1.0 5/3/2009
+*Ver. 1.0 October 2009
 *
 *Copyright (c) 2009, Kyle Hendricks - Mend Technologies
 *All rights reserved.
@@ -39,7 +39,12 @@ Class Sync extends Controller
 		$this->output->enable_profiler(FALSE);
 	}
 	
-	//gets displays sync page
+	/**
+	 * Public index() method of Sync Controller
+	 *
+	 * Gets Highrise tags and sets up/displays sync page
+	 * 
+	*/
 	public function index()
 	{
 		if ($this->_check_login())
@@ -83,7 +88,12 @@ Class Sync extends Controller
 		$this->load->view('sync/sync_view', $data);
 	}
 
-	//syncs highrise contacts to freshbooks
+	/**
+	 * Public sync_contacts() method of Sync Controller
+	 *
+	 * Syncs Highrise contacts to FrehBooks
+	 * 
+	*/
 	public function sync_contacts()
 	{
 		if ($this->_check_login())
@@ -180,7 +190,7 @@ Class Sync extends Controller
 			$fb_pages = (integer)$fb_clients->clients->attributes()->pages;
 			//process additional FB pages if they exist
 			while ($fb_pages > 1) {
-					$fb_clients = $this->highrise_to_freshbooks->get_fb_clients($fb_pages);
+					$fb_clients = $this->freshbooksoauth->get_fb_clients($fb_pages);
 			  //no errors on client api request extract email into array
 				foreach ($fb_clients->clients->client as $client) {
 					$email = htmlspecialchars(trim((string)$client->email));
@@ -230,7 +240,7 @@ Class Sync extends Controller
 	 **/
 	private function _get_settings()
 	{
-		$this->load->model('Oa_settings_model','settings');
+		$this->load->model('Settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
 				
@@ -285,7 +295,16 @@ Class Sync extends Controller
 			return TRUE;
 		}
 	}
-
+	
+	/**
+	 * Private _validate_hr_settings() method of Sync Controller
+	 *
+	 * Checks for Highrise settings in database.  If present then it tests that the
+	 * settings are valid by using the Highrise API.
+	 *
+	 * @return bool true  returns true on success and redirects to Highrise settings page on false
+	 *
+	*/
 	private function _validate_hr_settings($settings)
 	{
 		$this->load->library('Highrise', $settings);
@@ -311,6 +330,15 @@ Class Sync extends Controller
 		}
 	}
 
+	/**
+	 * Private _validate_fb_settings() method of Sync Controller
+	 *
+	 * Checks for FreshBooks oauth settings in database.  If present then it tests that the
+	 * settings are valid by using the FreshBooks API.
+	 *
+	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
+	 *
+	*/	
 	private function _validate_fb_settings($settings)
 	{
 		$this->load->library('FreshbooksOauth', $settings);
@@ -332,15 +360,6 @@ Class Sync extends Controller
 			redirect('settings/freshbooks_oauth');
 			return;
 		}
-	}
-
-	/**
-	 * Sorts multidimentional of results by status
-	 *
-	 **/
-	private function _results_sort($x, $y)
-	{
-		return strcasecmp($x['Status'], $y['Status']);
 	}
 
 }

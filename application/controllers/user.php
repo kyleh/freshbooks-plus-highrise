@@ -5,7 +5,7 @@
  * Controller to login verifications and registration
  *
  * @author Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
- * @version 1.0 - August 2009
+ * @version 1.0 - October 2009
  *
  * @copyright 2009 - Kyle Hendricks - Mend Technologies
  *
@@ -97,7 +97,6 @@ Class User extends Controller {
 				//set session data
 				$userinfo = array('userid' => $user->id, 'loggedin' => TRUE, 'subdomain' => $user->fb_url, 'hrssl' => 'no');
 				$this->session->set_userdata($userinfo); 
-				
 				//check for fb settings
 				$settings = $this->_get_settings();
 				if ($settings['fb_settings']) {
@@ -177,7 +176,7 @@ Class User extends Controller {
 	 * Logs out user and destroys session data
 	 * 
 	*/
-	function logout()
+	public function logout()
 	{
 		$this->session->sess_destroy();
 		redirect('user/index');
@@ -252,8 +251,9 @@ Class User extends Controller {
 	/**
 	 * Private _register_user() method of User Controller
 	 *
-	 * Validates user input via Post. Checks that the FreshBooks Url is not already in use.  Add user to database
-	 * on success then sets user session variables and redirects to FreshBooks settings page.
+	 * Validates user input via Post. Checks that the FreshBooks Url is not already in use.
+	 * Sets password and fb subdomain to session vars on success 
+	 * redirects to FreshBooks oauth process to verify subdomain ownership
 	 *
 	 * @param  array|string  $_POST['fburl]  FreshBooks subdomain
 	 * @param  array|string  $_POST['password']  User password
@@ -267,7 +267,8 @@ Class User extends Controller {
 		$this->form_validation->set_error_delimiters('<span class="login_error">', '</span>');
 		
 		$this->form_validation->set_rules('fburl', 'FreshBooks Url', 'trim|required|callback_fb_url_check');
-		$this->form_validation->set_rules('password', 'Password', 'trim|required|sha1');
+		$this->form_validation->set_rules('password', 'Password', 'trim|required|matches[confpassword]|sha1');
+		$this->form_validation->set_rules('confpassword', 'Password Conformation', 'required');
 		
 		if ($this->form_validation->run() == FALSE){
 			$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
@@ -277,23 +278,29 @@ Class User extends Controller {
 			$fb_url = $this->input->post('fburl');
 			$remove = array('freshbooks', 'com', '/', 'http', 'https', ':', '.');
 			$fb_url = str_replace($remove, '', $fb_url);
-			//insert user
-			$insert_user_id = $this->user->insert_user($fb_url);
-			//if insert fails return to registration page with error
-			if ($insert_user_id == FALSE) {
-				$data['error'] = 'Unable to add User data to database.  Please try again.';
-				$data['title'] = 'FreshBooks + Highrise Sync Tool::Register';
-				$this->load->view('user/register_view', $data);
-				return;
-			}
+			
 			//set up session and set session vars
-			$userinfo = array('userid' => $insert_user_id , 'loggedin' => TRUE, 'subdomain' => $fb_url, 'hrssl' => 'yes');
+			$userinfo = array('password' => $this->input->post('password'),'subdomain' => $fb_url, 'register' => TRUE);
 			$this->session->set_userdata($userinfo); 
-			redirect('settings/index');
+			
+			//redirect to oauth process
+			redirect('settings/freshbooks_oauth');
 			return;
 		}
 	}
 	
+	/**
+	 * Private _create_new_password() method of User Controller
+	 *
+	 * Validates user input via Post. Checks that the FreshBooks Url is not already in use.
+	 * Sets password reset vars to session vars on success 
+	 * redirects to FreshBooks oauth process to verify subdomain ownership
+	 *
+	 * @param  array|string  $_POST['fburl]  FreshBooks subdomain
+	 * @param  array|string  $_POST['password']  User password
+	 * @param  array|string  $_POST['confirmpassword']  User password confirmation
+	 *
+	*/
 	private function _create_new_password()
 	{
 		//load form validation helper
@@ -319,10 +326,13 @@ Class User extends Controller {
 				$this->session->set_userdata($resetdata);
 				//redirect to oauth process
 				redirect('settings/freshbooks_oauth'); 
+			}else{
+				//User not found
+				$data['error'] = "FreshBooks url is not currently registered - Please click the - Create an account - link on the right to register.";
+				$this->load->view('user/reset_password_view', $data);
 			}
 		}
 	}
-	
 	
 	/**
 	 * Callback method fb_url_check() method of User Controller
@@ -353,7 +363,7 @@ Class User extends Controller {
 	 **/
 	private function _get_settings()
 	{
-		$this->load->model('Oa_settings_model','settings');
+		$this->load->model('Settings_model','settings');
 		$api_settings = $this->settings->get_settings();
 		$fb_url = 'https://'.$this->session->userdata('subdomain').'.freshbooks.com';
 		

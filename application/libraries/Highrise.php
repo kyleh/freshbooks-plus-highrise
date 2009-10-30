@@ -28,6 +28,14 @@ class Highrise{
 		$this->hr_token = $params['hrtoken'];
 	}
 	
+	/**
+	 * Public validate_hr_settings() method of Highrise library
+	 *
+	 * Sends request to Highrise for users
+	 *
+	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
+	 *
+	*/	
 	public function validate_hr_settings()
 	{
 		$url = $this->hr_url.'/users.xml';
@@ -35,12 +43,28 @@ class Highrise{
 		return $request;
 	}
 	
+	/**
+	 * Public get_hr_tags() method of Highrise library
+	 *
+	 * Gets Highrise Tags
+	 *
+	 * @return list of Highrise tags
+	 *
+	*/	
 	public function get_hr_tags()
 	{
 		$url = $this->hr_url.'/tags.xml';
 		return $this->_highrise_api_request($url);
 	}
 	
+	/**
+	 * Public get_hr_clients() method of Highrise library
+	 *
+	 * Gets Highrise Clients with optional tag filter
+	 *
+	 * @return list of Highrise clients
+	 *
+	*/	
 	public function get_hr_clients($tag_id)
 	{
 		if ($tag_id == 'nofilter') {
@@ -51,6 +75,14 @@ class Highrise{
 		return $this->_highrise_api_request($url);
 	}
 	
+	/**
+	 * Public get_hr_company() method of Highrise library
+	 *
+	 * Gets Highrise company given a company id
+	 *
+	 * @return Highrise company data
+	 *
+	*/	
 	public function get_hr_company($companyid)
 	{
 		$url = $this->hr_url."/companies/".$companyid.".xml";
@@ -76,6 +108,7 @@ class Highrise{
 		$result = curl_exec($ch);
 		curl_close($ch);
 		
+		//check for wrong url subdomain or http/https
 		if (preg_match("/redirected/", $result) && preg_match("/highrisehq.com\/login/", $result)) {
 			throw new Exception('Error: Unable to connect to Highrise API. Please check your Highrise API URL setting and try again.');
 		}elseif(preg_match("/redirected/", $result) && preg_match("/highrisehq.com\/users.xml/", $result)){
@@ -92,5 +125,4 @@ class Highrise{
 			throw new Exception('Unable to connect to the API. Please try the request again.');
 		}
 	}
-	
 }

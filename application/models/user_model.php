@@ -5,7 +5,7 @@
  * Model to access user table in database.
  *
  * @author Kyle Hendricks - Mend Technologies - kyleh@mendtechnologies.com
- * @version 1.0 - August 2009
+ * @version 1.0 - October 2009
  *
  * @copyright 2009 - Kyle Hendricks - Mend Technologies
  *
@@ -45,46 +45,13 @@ Class User_model extends Model {
 	}
 
 	/**
-	 * Public method get_user_by_id() of User_model class/CI model.
-	 *
-	 * Gets a user by FreshBooks url or user id.
-	 * 
-	 * @param  int  $id  (optional)User id. 
-	 * @param  string  $fb_url  (optional) FreshBooks Url.
-	 *
-	 * @return bool|object  False on fail. Object containing user data on success.
-	 *
-	*/
-	public function get_user_by_id($id=NULL)
-	{
-		return $fb_url;
-		if ($id) {
-			$this->db->where('id', $id);
-		}elseif ($fb_url){
-			$this->db->where('fb_url', $fb_url);
-		} else {
-			return false;
-		}
-		
-		$this->db->from('users');
-		$query = $this->db->get();
-		
-		if ($query->num_rows() > 0) {
-			return $query->row();
-		} else {
-			return false;
-		}
-	}
-	
-	/**
 	 * Public method get_user_by_url() of User_model class/CI model.
 	 *
-	 * Gets a user by FreshBooks url or user id.
+	 * Queries users table using the FreshBooks url.
 	 * 
-	 * @param  int  $id  (optional)User id. 
 	 * @param  string  $fb_url  (optional) FreshBooks Url.
 	 *
-	 * @return bool|object  False on fail. Object containing user data on success.
+	 * @return bool|object  False on fail. Object of user data on success.
 	 *
 	*/
 	public function get_user_by_url($fb_url=NULL)
@@ -105,28 +72,44 @@ Class User_model extends Model {
 		}
 	}
 	
-	
 	/**
 	 * Public method insert_user() method of User_model class/CI model.
 	 *
 	 * Inserts a new user into the database.
 	 * 
-	 * @param  string  $fb_url  Pre processed FreshBooks Url subdomain
+	 * @param  string  $fb_url  Pre processed FreshBooks Url subdomain from session variable
+	 * @param  string  $password  password var from session variable
 	 * 
 	 * @return int|bool  Returns user id on success and bool FALSE on fail.
 	 *
 	*/
-	public function insert_user($fb_url)
+	public function insert_user()
 	{
-		$data = array(
-			'fb_url' => $fb_url,
-			'password' => $this->input->post('password')
-			);
+		//checks for new user session variables
+		if ($this->session->userdata('password') && $this->session->userdata('subdomain')) {
+			$data = array(
+				'fb_url' => $this->session->userdata('subdomain'),
+				'password' => $this->session->userdata('password')
+				);
+		}else{
+			throw new Exception('Unable to insert user.  Session data has timed out.  Please try again.');
+		}
 		
 		$this->db->insert('users', $data);
 		return $this->db->insert_id();
 	}
 	
+	/**
+	 * Public method update_password() method of User_model class/CI model.
+	 *
+	 * Inserts a new user into the database.
+	 * 
+	 * @param  string  $user_id  userid stored in session variable
+	 * @param  string  $new_password  new stored in session variable
+	 * 
+	 * @return int|bool  Returns user id on success and bool FALSE on fail.
+	 *
+	*/
 	public function update_password()
 	{
 		$user_id = $this->session->userdata('userid');
@@ -140,13 +123,6 @@ Class User_model extends Model {
 		
 		$this->db->where('id',$user_id);
 		$this->db->update('users',$data);
-		
 	}
 	
-	public function get_all_users()
-	{
-		$query = $this->db->get('users');
-		return $query->result();
-	}	
-
 }

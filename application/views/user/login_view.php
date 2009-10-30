@@ -47,7 +47,8 @@ Ver. 1.0 5/3/2009
 						<p>
 							Did you close a deal in <a href="http://www.highrisehq.com" target="_blank" style="color: white;">Highrise?</a> Move the contact into <a href="http://www.freshbooks.com" style="color: white;">FreshBooks</a> by tagging it with client and using this handy connector. 
 						</p>
-						<p>New to the FreshBooks and Highrise connector? <?php echo anchor('user/register', 'Create an account.', array('style' => 'color:white')); ?></p>
+						<p>New to the FreshBooks and Highrise connector?</p> 
+						<p><?php echo anchor('user/register', 'Create an account.', array('style' => 'color:white;font-size:1.35em; font-weight:bold;')); ?></p>
 					</div>
 
 					<div class="clear"></div>

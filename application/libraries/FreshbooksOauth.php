@@ -2,7 +2,7 @@
 /**
  * Handles all API requests for Highrise to FreshBooks Sync.
  *
- * @package Highrise_to_freshbooks
+ * @package FreshbooksOauth
  * @author Kyle Hendricks kyleh@mendtechnologies.com
  **/
 
@@ -30,9 +30,14 @@ class FreshbooksOauth{
 		$this->oauth_token_secret = $settings['fb_oauth_token_secret'];
 	}
 	
-	////
-	//Api Asset Functions
-	////
+	/**
+	 * Public validate_fb_settings() method of FreshbooksOAuth library
+	 *
+	 * Sends request to FreshBooks for 1 client
+	 *
+	 * @return bool true  returns true on success and redirects to FreshBooks settings page on false
+	 *
+	*/	
 	public function validate_fb_settings()
 	{
 		$xml  = '<?xml version="1.0" encoding="utf-8"?>';
@@ -45,6 +50,14 @@ class FreshbooksOauth{
 		return $clients ? TRUE : FALSE;
 	}
 	
+	/**
+	 * Public get_fb_clients() method of FreshbooksOAuth library
+	 *
+	 * Gets client list from FreshBooks
+	 *
+	 * @return list of FB clients
+	 *
+	*/	
 	public function get_fb_clients($page=1)
 	{
 		$xml  = '<?xml version="1.0" encoding="utf-8"?>';
@@ -56,7 +69,14 @@ class FreshbooksOauth{
 		return $this->_fb_api_request($xml); 
 	}
 	
-	//takes array of client data and sends to fb
+	/**
+	 * Public add_fb_clients() method of FreshbooksOAuth library
+	 *
+	 * Adds client data to FreshBooks
+	 * @param  array  $client Array of client data 
+	 * @return bool True on success False on fail.
+	 *
+	*/	
 	public function add_fb_client($client)
 	{
 		$fname = $client['first_name'];
@@ -96,6 +116,84 @@ class FreshbooksOauth{
 		return $this->_fb_api_request($xml); 
 	}
 	
+	/**
+	 * Public create_authorize_url() method of FreshbooksOAuth library
+	 *
+	 * Create FrsehBooks OAuth authorization url 
+	 *
+	*/	
+	public function create_authorize_url()
+	{
+		$request_results = $this->_obtain_request_token();
+		$url = $this->authorize_url;
+		
+		$uri = "oauth_token={$request_results['oauth_token']}";
+		
+		//returns url, token, and token secret
+		$authorize_data = array(
+			'url' => $url.'?'.$uri,
+			'token' => $request_results['oauth_token'],
+			'token_secret' => $request_results['oauth_token_secret'],
+			);
+		
+		return $authorize_data;
+	}
+	
+	/**
+	 * Public create_authorize_url() method of FreshbooksOAuth library
+	 *
+	 * Create FrsehBooks OAuth authorization url 
+	 *
+	*/	
+	public function obtain_access_token($oauth_settings)
+	{
+		$method = 'POST';
+		$url = $this->access_url;
+		//signature for plaintext method
+		$signature = $this->oauth_consumer_secret.'&';
+		$timestamp = $this->_get_timestamp();
+		$nonce = $this->_get_nonce();
+		$token = $oauth_settings['token'];
+		$verifier = $oauth_settings['verifier'];
+		
+		$params = array(
+			'oauth_consumer_key' => $this->oauth_consumer_key,
+			'oauth_token' => $token,
+			'oauth_signature_method' => $this->oauth_signature_method,
+			'oauth_signature' => $signature,
+			'oauth_timestamp' => $timestamp,
+			'oauth_nonce' => $nonce,
+			'oauth_verifier' => $verifier
+			);
+		
+		$post_fields = http_build_query($params);
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		$result = curl_exec($ch);
+		$info = curl_getinfo($ch);
+		curl_close($ch);
+		
+		$http_code = $info['http_code'];
+		if ($info['http_code'] != 200) {
+			throw new Exception('Error connecting to FreshBooks. '.$result);
+		}else{
+			parse_str($result, $oauth_request_results);
+			return $oauth_request_results;
+		}
+	}
+	
+	/**
+	 * Private _fb_api_request() method of FreshbooksOAuth library
+	 *
+	 * Sends API request to FreshBooks via curl
+	 *
+	*/	
 	private function _fb_api_request($xml=NULL)
 	{
 		$method = 'POST';
@@ -139,81 +237,31 @@ class FreshbooksOauth{
 		return simplexml_load_string($result);
 	}
 	
-	////
-	//OAuth functions
-	////
-	//creates authorization url to access freshbooks
-	//returns array containing url + token + token secret
-	public function create_authorize_url()
-	{
-		$request_results = $this->_obtain_request_token();
-		$url = $this->authorize_url;
-		
-		$uri = "oauth_token={$request_results['oauth_token']}";
-		
-		//returns url, token, and token secret
-		$authorize_data = array(
-			'url' => $url.'?'.$uri,
-			'token' => $request_results['oauth_token'],
-			'token_secret' => $request_results['oauth_token_secret'],
-			);
-		
-		return $authorize_data;
-	}
-	
-	public function obtain_access_token($oauth_settings)
-	{
-		$method = 'POST';
-		$url = $this->access_url;
-		//signature for plaintext method
-		$signature = $this->oauth_consumer_secret.'&';
-		$timestamp = $this->_get_timestamp();
-		$nonce = $this->_get_nonce();
-		$token = $oauth_settings['token'];
-		$verifier = $oauth_settings['verifier'];
-		
-		$params = array(
-			'oauth_consumer_key' => $this->oauth_consumer_key,
-			'oauth_token' => $token,
-			'oauth_signature_method' => $this->oauth_signature_method,
-			'oauth_signature' => $signature,
-			'oauth_timestamp' => $timestamp,
-			'oauth_nonce' => $nonce,
-			'oauth_verifier' => $verifier
-			);
-		
-		$post_fields = http_build_query($params);
-		
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
-		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,10);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		$result = curl_exec($ch);
-		$info = curl_getinfo($ch);
-		curl_close($ch);
-		
-		$http_code = $info['http_code'];
-		if ($info['http_code'] != 200) {
-			throw new Exception('Error connecting to FreshBooks. '.$result);
-		}else{
-			parse_str($result, $oauth_request_results);
-			return $oauth_request_results;
-		}
-	}
-		
+	/**
+	 *
+	 * Create nonce for OAuth requirements
+	 *
+	*/		
 	private function _get_nonce()
 	{
 		return uniqid('').time()*13;
 	}
 	
+	/**
+	 *
+	 * Create timestamp for OAuth requirements
+	 *
+	*/		
 	private function _get_timestamp()
 	{
 		return time();
 	}
-
+	
+	/**
+	 *
+	 * Create OAuth header for OAuth requirements
+	 *
+	*/		
 	private function _create_oauth_header($params)
 	{
 		$h   = array();
@@ -226,7 +274,11 @@ class FreshbooksOauth{
 		return $hs;
 	}
 	
-	//obtains a request token using PLAINTEXT method
+	/**
+	 *
+	 * Obtains OAuth request token using PLAINTEXT method
+	 *
+	*/		
 	private function _obtain_request_token()
 	{
 		$method = 'POST';
@@ -260,6 +312,9 @@ class FreshbooksOauth{
 		curl_close($ch);
 		
 		$http_code = $info['http_code'];
+		if ($info['http_code'] == 302) {
+			throw new Exception('302');
+		}
 		if ($info['http_code'] != 200) {
 			throw new Exception('HTTP Code: '.$http_code.'.  Error connecting to FreshBooks.  Please make sure that you Enabled API in your FreshBooks settings.');
 		}else{
@@ -267,6 +322,4 @@ class FreshbooksOauth{
 			return $oauth_request_results;
 		}
 	}
-	
-
 }
