@@ -22,8 +22,8 @@ class FreshbooksOauth{
 
 	public function __construct($settings)
 	{
-		$this->oauth_consumer_secret = $settings['oauth_consumer_secret'];
-		$this->oauth_consumer_key = $settings['oauth_consumer_key'];
+		$this->oauth_consumer_secret = $settings['consumer_secret'];
+		$this->oauth_consumer_key = $settings['consumer_key'];
 		$this->callback_url = $settings['callback_url'];
 		$this->relm_url = $settings['fb_url'].'/api/2.1/xml-in';
 		$this->request_url = $settings['fb_url'].'/oauth/oauth_request.php';
