@@ -13,12 +13,23 @@
 | FreshBooks Oauth consumer key, consumer secret and callback url
 | WITH a trailing slash:
 |
-|	http://example.com/
+|	http://example.com/index.php/settings/request_token_ready
 |
 */
 $config['consumer_key'] = "highrisehq";
 $config['consumer_secret'] = "WdvG8BepAkfpErLtxpF9fePctpAVQ5DwW";
-$config['callback_url'] = "http://highrise.devinprogress.com/index.php/settings/request_token_ready";
+/*
+|--------------------------------------------------------------------------
+| Callback URL
+|--------------------------------------------------------------------------
+|
+| URL to your Oauth callback url
+| replace example.com with your base url
+|
+|	http://example.com/index.php/settings/request_token_ready
+|
+*/
+$config['callback_url'] = "http://example.com/index.php/settings/request_token_ready";
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +42,7 @@ $config['callback_url'] = "http://highrise.devinprogress.com/index.php/settings/
 |	http://example.com/
 |
 */
-$config['base_url']	= "http://highrise.devinprogress.com/";
+$config['base_url']	= "";
 
 /*
 |--------------------------------------------------------------------------

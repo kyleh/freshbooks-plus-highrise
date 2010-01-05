@@ -34,7 +34,7 @@
 | the active record class
 */
 
-$active_group = "local_dev_oauth";
+$active_group = "production";
 $active_record = TRUE;
 
 //Production server with standard authenication
@@ -53,9 +53,9 @@ $db['production']['dbcollat'] = "utf8_general_ci";
 
 //Dev server with standard authenication 
 $db['local_dev']['hostname'] = "localhost";
-$db['local_dev']['username'] = "kyleh";
+$db['local_dev']['username'] = "";
 $db['local_dev']['password'] = "";
-$db['local_dev']['database'] = "fb_highrise";
+$db['local_dev']['database'] = "";
 $db['local_dev']['dbdriver'] = "mysql";
 $db['local_dev']['dbprefix'] = "";
 $db['local_dev']['pconnect'] = TRUE;
@@ -64,20 +64,6 @@ $db['local_dev']['cache_on'] = FALSE;
 $db['local_dev']['cachedir'] = "";
 $db['local_dev']['char_set'] = "utf8";
 $db['local_dev']['dbcollat'] = "utf8_general_ci";
-
-//Dev server with oAuth authenication 
-$db['local_dev_oauth']['hostname'] = "localhost";
-$db['local_dev_oauth']['username'] = "kyleh";
-$db['local_dev_oauth']['password'] = "";
-$db['local_dev_oauth']['database'] = "fb_highrise_oauth";
-$db['local_dev_oauth']['dbdriver'] = "mysql";
-$db['local_dev_oauth']['dbprefix'] = "";
-$db['local_dev_oauth']['pconnect'] = TRUE;
-$db['local_dev_oauth']['db_debug'] = TRUE;
-$db['local_dev_oauth']['cache_on'] = FALSE;
-$db['local_dev_oauth']['cachedir'] = "";
-$db['local_dev_oauth']['char_set'] = "utf8";
-$db['local_dev_oauth']['dbcollat'] = "utf8_general_ci";
 
 /* End of file database.php */
 /* Location: ./system/application/config/database.php */
