@@ -42,7 +42,7 @@ Ver. 1.0
 					<div class="span-9 prepend-1 white">
 						<h2>FreshBooks + Highrise</h2>
 						<p>
-							Did you close a deal in <a href="" target="_blank" style="color: white;">Highrise?</a> Move the contact into <a href="" style="color: white;">FreshBooks</a> by tagging it with client and using this handy connector. 
+							Did you close a deal in <a href="http://www.highrisehq.com" target="_blank" style="color: white;">Highrise?</a> Move the contact into <a href="http://www.freshbooks.com" target="_blank" style="color: white;">FreshBooks</a> by tagging it with client and using this handy connector. 
 						</p>
 						<p>Already have a FreshBooks and Highrise connector account? <?php echo anchor('user/index', 'Return to login.', array('style' => 'color:white')); ?></p>
 					</div>

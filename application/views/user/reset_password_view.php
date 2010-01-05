@@ -21,15 +21,15 @@ Ver. 1.0
 						<img src="<?php echo(base_url()); ?>public/images/freshbooks.highrise.gif" alt="Freshbooks + Highrise" width="352" height="75" />
 						<div class="login-form">
 							<div>
+								<p class="message">In order to reset your password, you must first verify you own your FreshBooks account.</p>
 								<?php echo form_open('user/reset_password')."\n"; ?>
 								<p><label class="login-label" for="subdomain">FreshBooks URL:</label> 
 								<input type="text" value="" name="fburl" value="<?php echo set_value('fburl'); ?>"/><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
-									<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
+									<label for="password" class="login-label">New Password:</label> <input type="password" name="password" />
 									<br />
 									<label for="confpassword" class="login-label">Confirm Password:</label> <input type="password" name="confpassword" />
 									<input type="hidden" name="reset_password" value="true">
 									<p><button value="submit"><span><span>Verify account</span></span></button></p>
-									<p>To reset your password, you must first verify you own your FreshBooks account.</p>
 								</form>
 							</div>
 							<div class="login-form-footer"></div>

@@ -117,11 +117,14 @@ Class User extends Controller {
 				redirect('sync/index');
 			} else {
 				$data['error'] = "Invalid Password - Please Try Again.";
+				$data['error_type'] = 'password';
 				$data['fb_url'] = $fb_url;
 				$this->load->view('user/login_view',$data);
 			}
 		} else {
-			$data['error'] = "FreshBooks url is not currently registered - Please click the - Create an account - link on the right to register.";
+			$data['error'] = "Whoops! We did not find that FreshBooks account. Maybe there's a typo?";
+			$data['error_type'] = 'fb_url';
+			$data['fb_url'] = $fb_url;
 			$this->load->view('user/login_view', $data);
 		}
 	}
@@ -381,6 +384,9 @@ Class User extends Controller {
 				'fb_settings' => $fb_settings,
 				'hr_settings' => $hr_settings,
 				'fb_url' => $fb_url,
+				'consumer_key' => $this->config->item('consumer_key'),
+				'consumer_secret' => $this->config->item('consumer_secret'),
+				'callback_url' => $this->config->item('callback_url'),
 				'fb_oauth_token_secret' => $api_settings->fb_oauth_token_secret,
 				'fb_oauth_token' => $api_settings->fb_oauth_token,
 				'hrurl' => $hr_url,
@@ -391,6 +397,9 @@ Class User extends Controller {
 				'fb_settings' => FALSE,
 				'hr_settings' => FALSE,
 				'fb_url' => $fb_url,
+				'consumer_key' => $this->config->item('consumer_key'),
+				'consumer_secret' => $this->config->item('consumer_secret'),
+				'callback_url' => $this->config->item('callback_url'),
 				'fb_oauth_token_secret' => '',
 				'fb_oauth_token' => '',
 				'hrurl' => '',

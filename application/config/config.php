@@ -1,4 +1,24 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+/*
+|--------------------------------------------------------------------------
+| Custom Config Settings
+|--------------------------------------------------------------------------
+*/
+
+/*
+|--------------------------------------------------------------------------
+| FreshBooks Oauth Settings
+|--------------------------------------------------------------------------
+|
+| FreshBooks Oauth consumer key, consumer secret and callback url
+| WITH a trailing slash:
+|
+|	http://example.com/
+|
+*/
+$config['consumer_key'] = "highrisehq";
+$config['consumer_secret'] = "WdvG8BepAkfpErLtxpF9fePctpAVQ5DwW";
+$config['callback_url'] = "http://highrise.devinprogress.com/index.php/settings/request_token_ready";
 
 /*
 |--------------------------------------------------------------------------
@@ -11,7 +31,7 @@
 |	http://example.com/
 |
 */
-$config['base_url']	= "http://127.0.0.1/freshbooks_dev/freshbooks-plus-highrise/";
+$config['base_url']	= "http://highrise.devinprogress.com/";
 
 /*
 |--------------------------------------------------------------------------

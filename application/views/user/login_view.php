@@ -23,22 +23,24 @@ Ver. 1.0 5/3/2009
 						
 						<div class="login-form">
 							<div>
+								<?php echo validation_errors(); ?>
+								<?php if (isset($error)): ?>
+									<span class="error_message"><?php echo $error ?></span>
+								<?php endif ?>
+								<?php if (isset($message)): ?>
+									<span class="message"><?php echo $message ?></span>
+								<?php endif ?>
+
 								<?php echo form_open('user/verify')."\n"; ?>
 								<p><label class="login-label" for="subdomain">FreshBooks URL:</label> 
-								<input type="text" value="<?php echo isset($fb_url) ? $fb_url :''; ?>" name="fburl"/><br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
-								<label for="password" class="login-label">Password:</label> <input type="password" name="password" />
+								<input type="text" value="<?php echo isset($fb_url) ? $fb_url :''; ?>" name="fburl" <?php echo (isset($error_type) && $error_type == 'fb_url') ? 'class="input_error"' : ''?>/>
+								<br/><label class='login-label'>&nbsp;</label> <strong>xxxxx</strong>.freshbooks.com</p>
+								<label for="password" class="login-label">Password:</label> <input type="password" name="password" <?php echo (isset($error_type) && $error_type == 'password') ? 'class="input_error"' : ''?>/>
 								<button value="submit"><span><span>Login</span></span></button>
 								</form>
 							</div>
 							<div class="login-form-footer"></div>
 							<p>Forgot your password? <?php echo anchor('user/reset_password', 'Reset Password', array('style' => 'color:blue')); ?></p>
-							<?php echo validation_errors(); ?>
-							<?php if (isset($error)): ?>
-								<span style="color:red;"><?php echo $error ?></span>
-							<?php endif ?>
-							<?php if (isset($message)): ?>
-								<span style="color:blue;"><?php echo $message ?></span>
-							<?php endif ?>
 						</div>
 					</div>
 

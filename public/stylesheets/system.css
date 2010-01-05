@@ -250,8 +250,27 @@ em {
 	color: #000000 !important;
 }
 
+.error_message{
+	display:block;
+	padding: 5px;
+	clear:both;
+	color:#000;
+	background:#FFC9BB;
+	border:1px solid red;
+	margin:10px 0 20px 0;
+}
+
+.message{
+	padding: 5px;
+	clear:both;
+	color:#000;
+	background:#D6EAFF;
+	border:1px solid #0000FF;
+	margin:10px 0 20px 0;
+}
 
 
+.input_error{border:1px solid red; background:#FFC9BB;}
 
 
 

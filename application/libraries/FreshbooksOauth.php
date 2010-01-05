@@ -13,15 +13,18 @@ class FreshbooksOauth{
 	private $oauth_signature_method = 'PLAINTEXT';
 	private $oauth_version = '1.0';
 	private $callback_url = 'http://highrise.devinprogress.com/index.php/settings/request_token_ready';
-	private $oauth_token = '';
-	private $oauth_token_secret = '';
-	private $relm_url = '';
-	private $request_url = '';
-	private $authorize_url = '';
-	private $access_url = '';
+	private $oauth_token;
+	private $oauth_token_secret;
+	private $relm_url;
+	private $request_url;
+	private $authorize_url;
+	private $access_url;
 
 	public function __construct($settings)
 	{
+		$this->oauth_consumer_secret = $settings['oauth_consumer_secret'];
+		$this->oauth_consumer_key = $settings['oauth_consumer_key'];
+		$this->callback_url = $settings['callback_url'];
 		$this->relm_url = $settings['fb_url'].'/api/2.1/xml-in';
 		$this->request_url = $settings['fb_url'].'/oauth/oauth_request.php';
 		$this->authorize_url = $settings['fb_url'].'/oauth/oauth_authorize.php';
