@@ -33,3 +33,11 @@ In application/config/config.php:
 1. Set base site url.
  
 $config['base_url']  = "http://base_url_here/";
+
+FRESHBOOKS OAUTH SETTINGS:
+
+In application/config/config.php:
+
+$config['callback_url'] = "http://example.com/index.php/settings/request_token_ready";
+
+Replace example.com with site url
